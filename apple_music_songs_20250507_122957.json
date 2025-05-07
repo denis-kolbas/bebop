@@ -1,0 +1,882 @@
+[
+  {
+    "song_name": "Yougotmefeeling",
+    "album": "LOVED",
+    "artist": "Parcels",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/23/23/0c/23230c1d-5bef-e911-69c5-0a36cb49521c/mzaf_9154831529205593312.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/yougotmefeeling/1810267744",
+    "artwork_bg_color": "#0c2208",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Old Phone",
+    "album": "Play",
+    "artist": "Ed Sheeran",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a0/f7/f0/a0f7f080-0309-26d4-e74c-1b62a10279f0/mzaf_17250042109322555967.plus.aac.ep.m4a",
+    "release_date": "2025-05-03",
+    "song_url": "https://music.apple.com/az/song/old-phone/1811175548",
+    "artwork_bg_color": "#f971ba",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "LANDMiNE",
+    "album": "LANDMiNE - Single",
+    "artist": "Skuzland",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a0/1c/cc/a01ccc6b-843a-9453-6dfe-fbd0e939e149/mzaf_3363760040468566215.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/landmine/1811263703",
+    "artwork_bg_color": "#f6f6f6",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Para Ti",
+    "album": "Ridin'",
+    "artist": "Cuco",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6f/ed/b9/6fedb978-44c3-a4c9-66fe-5627c2ace9eb/mzaf_6644323001162374645.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/para-ti/1799068746",
+    "artwork_bg_color": "#050007",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Lose My Mind (feat. Doja Cat)",
+    "album": "F1 The Album",
+    "artist": "Don Toliver",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b3/ea/0d/b3ea0d1d-088e-33e7-aefc-e064b7fc57d1/mzaf_1603181788704881885.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/lose-my-mind-feat-doja-cat/1810796700",
+    "artwork_bg_color": "#010101",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "The Catastrophe (Good Luck With That, Man)",
+    "album": "The Scholars",
+    "artist": "Car Seat Headrest",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1a/36/5b/1a365b6a-6926-d735-f533-6a54564d597c/mzaf_14427866938349887648.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/the-catastrophe-good-luck-with-that-man/1796212579",
+    "artwork_bg_color": "#1c1a1f",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Better Than You",
+    "album": "JIMMY",
+    "artist": "Briston Maroney",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4b/83/46/4b834616-73cb-c236-71ba-c865ee7ea5cc/mzaf_15902273174016001325.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/better-than-you/1801610231",
+    "artwork_bg_color": "#030000",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Spend It",
+    "album": "Spend It - Single",
+    "artist": "Summer Walker",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/08/c1/ca/08c1cadb-0395-392b-aac3-9f278311525e/mzaf_14795000492000207040.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/spend-it/1807357120",
+    "artwork_bg_color": "#1b1b21",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Burning Blue",
+    "album": "Burning Blue - Single",
+    "artist": "Mariah the Scientist",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/78/f6/6e/78f66e56-72ad-fc70-b508-f858e96d8453/mzaf_16082690927722955972.plus.aac.ep.m4a",
+    "release_date": "2025-04-25",
+    "song_url": "https://music.apple.com/az/song/burning-blue/1811228836",
+    "artwork_bg_color": "#010101",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "The Way I Love You",
+    "album": "The Way I Love You - Single",
+    "artist": "Jorja Smith",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1a/b5/0c/1ab50cd7-218e-7f5a-9d8d-8f9c222dce16/mzaf_9471860622057273093.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/the-way-i-love-you/1807102751",
+    "artwork_bg_color": "#000000",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Event of a Fire",
+    "album": "If You Asked For A Picture",
+    "artist": "Blondshell",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3f/18/77/3f18775b-61a5-d662-91ef-956357b5a988/mzaf_5947732345758961741.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/event-of-a-fire/1779137892",
+    "artwork_bg_color": "#19616e",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Voices",
+    "album": "FUNNY little FEARS",
+    "artist": "Damiano David",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/47/80/78/478078c8-a619-6925-e851-b24fafb9402b/mzaf_6309564711820102820.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/voices/1800504507",
+    "artwork_bg_color": "#0b100a",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Lost Highway",
+    "album": "Lost Highway - Single",
+    "artist": "Kacey Musgraves",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/65/c4/06/65c406df-c6ff-76ec-8e22-79fff4db0e01/mzaf_13682535520403950158.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/lost-highway/1810805335",
+    "artwork_bg_color": "#eced38",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Priceless",
+    "album": "Priceless - Single",
+    "artist": "Maroon 5",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/55/21/c5/5521c528-367f-e3f2-26e7-579ee3ffe9c0/mzaf_12455678522397584323.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/priceless/1810385825",
+    "artwork_bg_color": "#ffffff",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Bleed On Paper",
+    "album": "Evangeline vs. The Machine",
+    "artist": "Eric Church",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/db/77/a8/db77a87b-b0c0-0afa-a004-67b383c406fc/mzaf_8930073269560570960.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/bleed-on-paper/1797412883",
+    "artwork_bg_color": "#00000a",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Backup Plan",
+    "album": "Backup Plan - Single",
+    "artist": "Bailey Zimmerman",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/96/c4/5e/96c45e17-0160-5665-bf95-4dea3eddaabe/mzaf_7696628615653447364.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/backup-plan/1809267295",
+    "artwork_bg_color": "#090100",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Is It Mine",
+    "album": "Why Not More? (Extended)",
+    "artist": "Coco Jones",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f4/8a/68/f48a68c3-c6dc-dc7d-3f4f-032054d734b2/mzaf_1646222176181477544.plus.aac.ep.m4a",
+    "release_date": "2025-04-25",
+    "song_url": "https://music.apple.com/az/song/is-it-mine/1810575516",
+    "artwork_bg_color": "#ffffff",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "La Buena Eras TÃº",
+    "album": "La Buena Eras TÃº - Single",
+    "artist": "Grupo Frontera",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/15/93/ce/1593ce10-0f41-1fa0-ec6d-8f6a45bdef43/mzaf_10387851457360936475.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/la-buena-eras-t%C3%BA/1810073058",
+    "artwork_bg_color": "#293438",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "speed (feat. Ty Dolla $ign & Rich The Kid)",
+    "album": "blame the chat",
+    "artist": "DDG",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c8/71/14/c8711448-8a29-4063-ddcc-a75153650b18/mzaf_16509799678938705273.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/speed-feat-ty-dolla-%24ign-rich-the-kid/1811888413",
+    "artwork_bg_color": "#cfccc7",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Sign Language",
+    "album": "Excelsior",
+    "artist": "Benny the Butcher",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/81/55/40/81554008-b3d4-a637-5fda-70daae49d95d/mzaf_1678644195972777258.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/sign-language/1808480952",
+    "artwork_bg_color": "#a42716",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Blue Devil",
+    "album": "Glockaveli",
+    "artist": "Key Glock",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d4/ab/a6/d4aba67b-c97c-f003-29ad-e074f793d724/mzaf_12955202788192762152.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/blue-devil/1802656944",
+    "artwork_bg_color": "#201e1f",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "hope u don't mind",
+    "album": "since yall say ion drop enough - Single",
+    "artist": "4batz",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c1/78/61/c178618d-2c01-77ac-666b-7519ab696501/mzaf_12512472759120015662.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/hope-u-dont-mind/1811091641",
+    "artwork_bg_color": "#05000b",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "SEEIN' STARS",
+    "album": "NEVER ENOUGH",
+    "artist": "Turnstile",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8f/c1/76/8fc176a6-e4b2-742d-38c7-77cfa685f241/mzaf_17103470457334751744.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/seein-stars/1805821602",
+    "artwork_bg_color": "#b4d6f1",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Cold Heart",
+    "album": "Cold Heart - Single",
+    "artist": "NilÃ¼fer Yanya",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/10/e8/c0/10e8c0ea-75fd-7b17-dd04-5f83a79430f5/mzaf_8220259785356836009.plus.aac.ep.m4a",
+    "release_date": "2025-04-28",
+    "song_url": "https://music.apple.com/az/song/cold-heart/1806072987",
+    "artwork_bg_color": "#cec8bd",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Entertainer",
+    "album": "Safe - EP",
+    "artist": "NewDad",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9c/fd/0c/9cfd0ca3-17f3-05db-6a5a-bd02c5729d0f/mzaf_2876374594459608928.plus.aac.ep.m4a",
+    "release_date": "2024-01-26",
+    "song_url": "https://music.apple.com/az/song/entertainer/1802610702",
+    "artwork_bg_color": "#d7d6db",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "money",
+    "album": "money - Single",
+    "artist": "Tiana Major9",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/6e/44/0e6e4436-7d81-310a-efad-222e6296ecac/mzaf_9986414662974769131.plus.aac.ep.m4a",
+    "release_date": "2025-04-29",
+    "song_url": "https://music.apple.com/az/song/money/1803217698",
+    "artwork_bg_color": "#f3f8fb",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Sweet Love",
+    "album": "Sweet Love - Single",
+    "artist": "Burna Boy",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/33/b9/15/33b91570-e229-7127-12fd-f1be7bb5f53f/mzaf_15375404343583132783.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/sweet-love/1811483632",
+    "artwork_bg_color": "#271918",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Just Like Me",
+    "album": "Just Like Me - Single",
+    "artist": "RAAHiiM",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ff/ba/88/ffba88b7-d900-9a5a-1dcd-cbf667c7b518/mzaf_15088913424853047171.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/just-like-me/1809440948",
+    "artwork_bg_color": "#121011",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "peliculiando",
+    "album": "111XPANTIA",
+    "artist": "Fuerza Regida",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6f/29/c5/6f29c5ba-c976-d8e3-2204-fb3afe18c7e3/mzaf_7400073541675925998.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/peliculiando/1804142878",
+    "artwork_bg_color": "#000000",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Me PrometÃ­",
+    "album": "Me PrometÃ­ - Single",
+    "artist": "Ivan Cornejo",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9d/72/e9/9d72e932-19b6-63bc-3876-03ee8656dd00/mzaf_9337918270803926921.plus.aac.ep.m4a",
+    "release_date": "2025-05-03",
+    "song_url": "https://music.apple.com/az/song/me-promet%C3%AD/1809879756",
+    "artwork_bg_color": "#0f0f11",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "X n The City",
+    "album": "X n The City - Single",
+    "artist": "Jordan Adetunji",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5d/98/7d/5d987dd0-75a2-9650-46f4-a4d5ec9d977c/mzaf_12799674789248498918.plus.aac.p.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/x-n-the-city/1811206528",
+    "artwork_bg_color": "#272727",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Heartthrob",
+    "album": "Precipice",
+    "artist": "Indigo De Souza",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c3/23/04/c32304bf-87b6-c29f-ea61-62f152864ed3/mzaf_4938346623610343759.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/heartthrob/1804207856",
+    "artwork_bg_color": "#6ab3fb",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Melodie Is A Wound",
+    "album": "Instant Holograms On Metal Film",
+    "artist": "Stereolab",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d3/07/1e/d3071e4d-9d45-eb6c-3358-2d7c518b0225/mzaf_14977473905058488968.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/melodie-is-a-wound/1802636800",
+    "artwork_bg_color": "#fac900",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Animaru",
+    "album": "Animaru",
+    "artist": "Mei Semones",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/15/dd/f8/15ddf852-4447-6d9f-cc9d-681508bc5d81/mzaf_2909915058793297709.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/animaru/1788998137",
+    "artwork_bg_color": "#e5efee",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Bad Brain",
+    "album": "Bad Brain - Single",
+    "artist": "Samara Cyn",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/71/13/21/711321c2-51e2-fbc4-39d6-324f5fb6f0f4/mzaf_7383040499660340243.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/bad-brain/1808526701",
+    "artwork_bg_color": "#b8b6a1",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Found A Light (Beale Street)",
+    "album": "Found A Light (Beale Street) - Single",
+    "artist": "BADBADNOTGOOD",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9a/57/56/9a5756e2-ddb4-91de-ec2f-7d430326ca70/mzaf_8122576247548500992.plus.aac.ep.m4a",
+    "release_date": "2025-04-29",
+    "song_url": "https://music.apple.com/az/song/found-a-light-beale-street/1805809495",
+    "artwork_bg_color": "#080705",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Mirror (feat. Jessy Lanza & Yaeji)",
+    "album": "INFINITY CLUB II",
+    "artist": "BAMBII",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/25/09/0d250912-1dc4-9df9-f7cd-ee2ce3da16d1/mzaf_13411290837328436580.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/mirror-feat-jessy-lanza-yaeji/1806650786",
+    "artwork_bg_color": "#1a191f",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Vacay",
+    "album": "13 Months of Sunshine",
+    "artist": "AminÃ©",
+    "preview_url": "",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/vacay/1803733241",
+    "artwork_bg_color": "#cdcac3",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Bon Voyage",
+    "album": "It's Complicated",
+    "artist": "Girlfriend",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/c3/a9/22c3a910-c08a-e5ca-c65e-8a1729fd4cd7/mzaf_2839302135929287252.plus.aac.ep.m4a",
+    "release_date": "2025-04-16",
+    "song_url": "https://music.apple.com/az/song/bon-voyage/1809467902",
+    "artwork_bg_color": "#3c2804",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "WE ON GO",
+    "album": "WE ON GO - Single",
+    "artist": "BIA",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1c/d1/2b/1cd12b02-47e9-ac87-614b-a2219744547a/mzaf_2526881288122005316.plus.aac.ep.m4a",
+    "release_date": "2025-04-04",
+    "song_url": "https://music.apple.com/az/song/we-on-go/1808465015",
+    "artwork_bg_color": "#001027",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "fine shyt (feat. BIA)",
+    "album": "blame the chat",
+    "artist": "DDG",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/80/84/7a/80847acc-aa7d-8dc1-1397-ccd7767c877a/mzaf_12858648273155144661.plus.aac.p.m4a",
+    "release_date": "2025-04-04",
+    "song_url": "https://music.apple.com/az/song/fine-shyt-feat-bia/1811888411",
+    "artwork_bg_color": "#cfccc7",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "bishop",
+    "album": "BILLY2",
+    "artist": "SWAVAY",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7b/8c/39/7b8c39d5-4cd2-1095-b4bd-c50e7fabf0c3/mzaf_13319871255839072359.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/bishop/1809188356",
+    "artwork_bg_color": "#161a1b",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Back Back",
+    "album": "Set The Tone",
+    "artist": "Zeddy Will",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/32/ef/98/32ef980a-a47e-506b-2f9c-a382e2dccfb3/mzaf_1392880468392657833.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/back-back/1810292007",
+    "artwork_bg_color": "#311b04",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "All that Glitter is not Gold (feat. Trueno)",
+    "album": "All that Glitter is not Gold (feat. Trueno) - Single",
+    "artist": "Myd",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ce/d4/d3/ced4d3e9-ae1c-8997-fb33-94e4cf954bd3/mzaf_4094523687565872871.plus.aac.ep.m4a",
+    "release_date": "2025-04-29",
+    "song_url": "https://music.apple.com/az/song/all-that-glitter-is-not-gold-feat-trueno/1804951575",
+    "artwork_bg_color": "#2a3440",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Women Respond to Bass",
+    "album": "yes, please.",
+    "artist": "Sextile",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/68/e5/d4/68e5d45e-e4a2-2d1e-824f-aa95906d8935/mzaf_1569439470019459401.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/women-respond-to-bass/1792057116",
+    "artwork_bg_color": "#0a140c",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Lay down",
+    "album": "Iris Silver Mist",
+    "artist": "Jenny Hval",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/13/8e/68/138e6868-f82f-b38c-44a2-6cd456832801/mzaf_5769339396001844656.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/lay-down/1794783306",
+    "artwork_bg_color": "#ffffff",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Death with Dignity (Demo)",
+    "album": "Carrie & Lowell (10th Anniversary Edition)",
+    "artist": "Sufjan Stevens",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/34/28/9e/34289ef6-358c-4deb-7e78-d6cd6aef95f4/mzaf_711776486997019861.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/death-with-dignity-demo/1794842349",
+    "artwork_bg_color": "#b8beb2",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "The Path (from \"The Last of Us: Season 2\")",
+    "album": "The Path (from \"The Last of Us: Season 2\") - Single",
+    "artist": "Gustavo Santaolalla",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/20/2e/c2/202ec201-3ac0-8713-287f-3d9a63f462c6/mzaf_5396735544737727548.plus.aac.p.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/the-path-from-the-last-of-us-season-2/1809458961",
+    "artwork_bg_color": "#140b0b",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Faithless",
+    "album": "Tracks II: The Lost Albums",
+    "artist": "Bruce Springsteen",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b1/c3/b7/b1c3b7a1-eedd-d296-98fc-2679dfa94ca5/mzaf_12960476226865927342.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/faithless/1804689912",
+    "artwork_bg_color": "#2d2d2f",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Don't Wake Me Up (Vibe Chemistry Remix)",
+    "album": "Don't Wake Me Up (Vibe Chemistry Remix) - Single",
+    "artist": "James Hype",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ac/24/c0/ac24c084-f2b7-4086-1b7e-ddb35b39e5e0/mzaf_13089616095088120921.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/dont-wake-me-up-vibe-chemistry-remix/1809137895",
+    "artwork_bg_color": "#020202",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Detonator",
+    "album": "Detonator - Single",
+    "artist": "Jauz",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/dc/e8/00/dce80078-362e-a014-520c-44c2d6cef93d/mzaf_2557813901079390820.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/detonator/1807167108",
+    "artwork_bg_color": "#2a2a2a",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "SOS",
+    "album": "SOS - Single",
+    "artist": "Cassian",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/24/eb/1c/24eb1ce9-09dc-e474-e78b-26fcb9efba81/mzaf_8166815719715129820.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/sos/1810708906",
+    "artwork_bg_color": "#100001",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Metal",
+    "album": "Metal - Single",
+    "artist": "The Beths",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/69/af/0d69af08-4858-4b72-314d-1644a29a5553/mzaf_8597137539023293529.plus.aac.ep.m4a",
+    "release_date": "2025-04-28",
+    "song_url": "https://music.apple.com/az/song/metal/1807092000",
+    "artwork_bg_color": "#4e5bbb",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "baja bird",
+    "album": "baja bird - Single",
+    "artist": "quinnie",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b5/66/ec/b566ecb6-1ef7-3bb0-64ea-27fbcb839eac/mzaf_9325648089802116112.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/baja-bird/1808482302",
+    "artwork_bg_color": "#473123",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "JUNGLE FEVER",
+    "album": "VELVET SOUL (DELUXE)",
+    "artist": "THEHONESTGUY",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6f/78/f9/6f78f9c2-9986-3eab-fa65-fe1341ce951e/mzaf_8819271643251028317.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/jungle-fever/1807242608",
+    "artwork_bg_color": "#0d0a01",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "What Hurts The Most",
+    "album": "Life Is A Highway: Refueled Duets",
+    "artist": "Rascal Flatts",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2b/e2/88/2be288f8-56eb-c824-b582-c33c25eca77f/mzaf_2531074555354623321.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/what-hurts-the-most/1799107444",
+    "artwork_bg_color": "#445a8f",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Chasing Babies & Raising Dreams",
+    "album": "Love & Light",
+    "artist": "Maddie & Tae",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4e/3d/06/4e3d068a-4329-7335-acac-779ef52f5461/mzaf_12923298290177850726.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/chasing-babies-raising-dreams/1792956930",
+    "artwork_bg_color": "#85482c",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Same Questions",
+    "album": "Same Questions - Single",
+    "artist": "Max McNown",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9e/52/6e/9e526e22-8595-09e0-acb0-07658e16d1c3/mzaf_13275864531119081954.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/same-questions/1809451149",
+    "artwork_bg_color": "#05090e",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "I Donât Want You",
+    "album": "Corn Queen",
+    "artist": "Hailey Whitters",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/06/49/0e0649d3-7e38-6797-97aa-b8014a1ed406/mzaf_12253918820735624160.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/i-dont-want-you/1803632308",
+    "artwork_bg_color": "#fdd18a",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Steal Your Thunder",
+    "album": "Steal Your Thunder - EP",
+    "artist": "Gareth",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fd/bf/09/fdbf092e-64b8-316d-7121-4d9dadd16603/mzaf_5542165489339812917.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/steal-your-thunder/1807480151",
+    "artwork_bg_color": "#252f36",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Half Past Three",
+    "album": "Half Past Three - Single",
+    "artist": "Ruston Kelly",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fa/08/65/fa08653a-db6d-91c9-fbba-e9cf60f767a5/mzaf_18164360354598994658.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/half-past-three/1807912503",
+    "artwork_bg_color": "#060606",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Daddy's DNA",
+    "album": "King Of Hearts",
+    "artist": "Brandon Lake",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/e5/61/2fe561d7-55df-4999-e40b-7965e453a121/mzaf_16331515683867094393.plus.aac.ep.m4a",
+    "release_date": "2025-04-29",
+    "song_url": "https://music.apple.com/az/song/daddys-dna/1804396311",
+    "artwork_bg_color": "#722d0b",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "TRICK DADDY",
+    "album": "LVRS PARADISE (SIDE A)",
+    "artist": "Isaiah Falls",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/99/5f/95/995f9520-8d9c-df80-2842-5823afb948f2/mzaf_2325884341241268440.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/trick-daddy/1801611614",
+    "artwork_bg_color": "#0c0b09",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Soar",
+    "album": "Falling Into Place",
+    "artist": "Aqyila",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d4/b3/93/d4b39357-cbb2-1c82-897c-aaa7779eb607/mzaf_3725560586856601974.plus.aac.ep.m4a",
+    "release_date": "2025-03-28",
+    "song_url": "https://music.apple.com/az/song/soar/1793203947",
+    "artwork_bg_color": "#9eab97",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "No Longer Young",
+    "album": "At Peace",
+    "artist": "Propagandhi",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/97/a3/6997a300-6d23-2a19-072c-2a145f6c1fec/mzaf_16198109193486462860.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/no-longer-young/1796224626",
+    "artwork_bg_color": "#070707",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "HELLMUSTFEARME",
+    "album": "To Rid Myself Of Truth",
+    "artist": "Signs of the Swarm",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d9/68/e6/d968e6ce-ae28-948f-4377-b50d3cd17dd0/mzaf_12256066769210985243.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/hellmustfearme/1807796435",
+    "artwork_bg_color": "#060002",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Souls Devoured",
+    "album": "Souls Devoured - Single",
+    "artist": "Shadows Fall",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a5/a1/e7/a5a1e74c-63ea-a8d9-88ee-8d52f544527a/mzaf_10688122624914501041.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/souls-devoured/1806704794",
+    "artwork_bg_color": "#1b1517",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Minnie Says (Would You Be My)",
+    "album": "Minnie Says (Would You Be My) - Single",
+    "artist": "Luna Li",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/91/e7/fc/91e7fcb7-b28f-faf2-999e-175b88a23836/mzaf_6088231461920434043.plus.aac.ep.m4a",
+    "release_date": "2025-04-29",
+    "song_url": "https://music.apple.com/az/song/minnie-says-would-you-be-my/1807841323",
+    "artwork_bg_color": "#181c1f",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Should've known better (choices)",
+    "album": "Should've known better (choices) - Single",
+    "artist": "Becky and the Birds",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d4/c9/fe/d4c9fe5f-232a-425d-9ba7-8269864b3d72/mzaf_1499617904549248978.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/shouldve-known-better-choices/1806376441",
+    "artwork_bg_color": "#dce0eb",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Pookie",
+    "album": "Day & Night - EP",
+    "artist": "FIFTY FIFTY",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/79/c1/d1/79c1d183-2816-7467-4e92-358111f6a85e/mzaf_7263720110650787385.plus.aac.ep.m4a",
+    "release_date": "2025-04-29",
+    "song_url": "https://music.apple.com/az/song/pookie/1809050530",
+    "artwork_bg_color": "#9c8dde",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "One In A Million",
+    "album": "Ste The Beautiful Martyr 1st Attempt - Single",
+    "artist": "Bladee",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0f/79/e9/0f79e92c-db30-0bfa-66f4-45faee49a280/mzaf_13086114574835459064.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/one-in-a-million/1810495789",
+    "artwork_bg_color": "#000000",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "On It Goes",
+    "album": "On It Goes - Single",
+    "artist": "Avalon Emerson",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c3/ca/63/c3ca6353-2a89-3255-47b6-a388559cea14/mzaf_11187052595905722923.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/on-it-goes/1807815732",
+    "artwork_bg_color": "#c49780",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "ICU2",
+    "album": "ICU2 - Single",
+    "artist": "TOPS",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8d/de/c8/8ddec8eb-c9bd-be8d-ad41-f41e030a7949/mzaf_14092718874687344704.plus.aac.ep.m4a",
+    "release_date": "2025-04-30",
+    "song_url": "https://music.apple.com/az/song/icu2/1806658341",
+    "artwork_bg_color": "#e04128",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Trap Door",
+    "album": "Gumshoe",
+    "artist": "Samantha Crain",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bc/44/c2/bc44c22a-7a09-f610-78e0-a2c986b67d54/mzaf_5284791035833901471.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/trap-door/1763615226",
+    "artwork_bg_color": "#351405",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Sinathavar Mudikkum",
+    "album": "Nilam",
+    "artist": "Ganavya",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ae/4b/78/ae4b78c9-d1a3-deae-35a5-2cec104c8eca/mzaf_8421423252929932212.plus.aac.ep.m4a",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/sinathavar-mudikkum/1801496026",
+    "artwork_bg_color": "#f3eff0",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "On This Love",
+    "album": "On This Love - Single",
+    "artist": "Suki Waterhouse",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fd/fa/3c/fdfa3cd8-1b58-302c-6647-e5ed14768e76/mzaf_11424870765319730932.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/on-this-love/1805951856",
+    "artwork_bg_color": "#d7e5e6",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Vespers",
+    "album": "Pirouette",
+    "artist": "Model/Actriz",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d5/89/43/d58943b8-cef1-35f8-b62e-8b0fd2e2d662/mzaf_6179322917659440921.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/vespers/1794340146",
+    "artwork_bg_color": "#e8e2e2",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Possession",
+    "album": "Possession",
+    "artist": "Ty Segall",
+    "preview_url": "",
+    "release_date": null,
+    "song_url": "https://music.apple.com/az/song/possession/1793833812",
+    "artwork_bg_color": "#1e1731",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Olive Garden",
+    "album": "Who Will Look After The Dogs?",
+    "artist": "PUP",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b1/35/93/b135934e-dab1-656c-c0a6-e783c7258ff4/mzaf_10689242268557988166.plus.aac.p.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/olive-garden/1792971595",
+    "artwork_bg_color": "#d6a69a",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Angel Patience",
+    "album": "Angel Patience - Single",
+    "artist": "Olympia Vitalis",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e6/6f/03/e66f03d9-e6be-fd0c-f401-344f4c1d299b/mzaf_13884563320499007945.plus.aac.ep.m4a",
+    "release_date": "2025-04-24",
+    "song_url": "https://music.apple.com/az/song/angel-patience/1804467902",
+    "artwork_bg_color": "#161714",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "AURA",
+    "album": "AURA - Single",
+    "artist": "Domino Saints",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/36/17/e1/3617e1ea-9940-47f7-10c7-8a13dfbe3c21/mzaf_2220820740706732330.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/aura/1806409381",
+    "artwork_bg_color": "#feb0bd",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "El Beso",
+    "album": "El Beso - Single",
+    "artist": "Oscar Dudamel",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cf/3e/80/cf3e80ba-172e-8bce-32c3-c55423ded3a4/mzaf_4743329267888688649.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/el-beso/1811915515",
+    "artwork_bg_color": "#241a00",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Negative Space",
+    "album": "Pink Moon",
+    "artist": "Silverstein",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/20/1b/08/201b0896-dfe6-7317-7385-90cb5556dca9/mzaf_4160636213242945519.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/negative-space/1809399226",
+    "artwork_bg_color": "#131e24",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Wrath (Bring Fire)",
+    "album": "Wrath (Bring Fire) - Single",
+    "artist": "Death Angel",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f4/a6/7a/f4a67a09-4e3f-7a5a-4b0f-ca8345799421/mzaf_11936063554568114820.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/wrath-bring-fire/1807100244",
+    "artwork_bg_color": "#000000",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Head Over Heels",
+    "album": "Head Over Heels - Single",
+    "artist": "STARSET",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/13/4d/40/134d40d2-734c-00db-7a48-7bb1f546c2de/mzaf_7204630225566082604.plus.aac.ep.m4a",
+    "release_date": "2025-05-02",
+    "song_url": "https://music.apple.com/az/song/head-over-heels/1809832693",
+    "artwork_bg_color": "#000000",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "The End",
+    "album": "The End - Single",
+    "artist": "Mammoth",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/2f/e7/442fe7a5-6db5-9be9-4683-86ed149ca0be/mzaf_17479774610725236823.plus.aac.ep.m4a",
+    "release_date": "2025-05-01",
+    "song_url": "https://music.apple.com/az/song/the-end/1808747032",
+    "artwork_bg_color": "#fefcf0",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Enter The Behelit",
+    "album": "Enter The Behelit - Single",
+    "artist": "Beast in Black",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/63/9f/ca/639fca08-d394-e637-5801-e9a5389c41b7/mzaf_17354074910651856432.plus.aac.ep.m4a",
+    "release_date": "2025-04-28",
+    "song_url": "https://music.apple.com/az/song/enter-the-behelit/1810189440",
+    "artwork_bg_color": "#101406",
+    "scrape_date": "2025-05-07"
+  },
+  {
+    "song_name": "Turn the Other Cheek (from \"The Righteous Gemstones: Season 4\")",
+    "album": "Turn the Other Cheek (from \"The Righteous Gemstones: Season 4\") - Single",
+    "artist": "The Cast of Teenjus",
+    "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0f/39/48/0f3948e3-c36f-b9c8-d997-e2612a4673b7/mzaf_9195140383999573499.plus.aac.p.m4a",
+    "release_date": "2025-04-28",
+    "song_url": "https://music.apple.com/az/song/turn-the-other-cheek-from-the-righteous-gemstones-season-4/1806052967",
+    "artwork_bg_color": "#ae8d6c",
+    "scrape_date": "2025-05-07"
+  }
+]
