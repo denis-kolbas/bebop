@@ -1,28 +1,42 @@
-name: Scrape Apple Music
+name: Generate Music Videos
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  
-  workflow_dispatch:
+    - cron: '0 */6 * * *'  # Runs every 6 hours
+  workflow_dispatch:  # Manual trigger
 
 jobs:
-  scrape:
+  create-videos:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
-    - run: pip install google-cloud-storage requests beautifulsoup4 ytmusicapi
-    - name: Debug Service Account
+        python-version: '3.10'
+        
+    - name: Install dependencies
       run: |
-        echo "First few chars of GCP_SA_KEY: ${GCP_SA_KEY:0:50}"
-        echo "Bucket name: $GCS_BUCKET_NAME"
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-    - name: Run scraper
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-      run: python apple_music.py
+        python -m pip install --upgrade pip
+        pip install moviepy pillow requests google-cloud-storage
+        
+    - name: Set up GCloud Auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        
+    - name: Run video creator
+      run: python video_creator.py
+      
+    - name: Commit and push videos
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add preview_*.mp4
+        git commit -m "Add new music preview videos" || echo "No changes to commit"
+        git push
