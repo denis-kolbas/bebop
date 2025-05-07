@@ -1,0 +1,27 @@
+# .github/workflows/video_creator.yml
+name: Create Music Videos
+
+on:
+  workflow_run:
+    workflows: ["Scrape Apple Music"]
+    types:
+      - completed
+
+jobs:
+  create_videos:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+        pip install google-cloud-storage moviepy Pillow requests
+    - name: Create videos
+      env:
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+      run: python video_creator.py
