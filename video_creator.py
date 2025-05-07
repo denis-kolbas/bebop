@@ -1,19 +1,8 @@
-from moviepy.video.io.bindings import mplfig_to_npimage
-from moviepy.editor import VideoClip
-from moviepy.video.VideoClip import ColorClip, TextClip
-import matplotlib.pyplot as plt
+from moviepy.editor import ColorClip, TextClip, CompositeVideoClip
 
-duration = 2
-
-# Create a solid color background
-clip = ColorClip(size=(720, 480), color=(255, 128, 0), duration=duration)
-
-# Add text
+# Create a simple 2-second clip
+clip = ColorClip(size=(720, 480), color=(255, 128, 0), duration=2)
 txt = TextClip("Test", fontsize=70, color='white')
-txt = txt.set_pos('center').set_duration(duration)
-
-# Combine clips
+txt = txt.set_pos('center').set_duration(2)
 video = CompositeVideoClip([clip, txt])
-
-# Write to file
 video.write_videofile("test.mp4", fps=24)
