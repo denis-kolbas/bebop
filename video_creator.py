@@ -2,6 +2,7 @@
 import os
 from google.cloud import storage
 from moviepy.editor import VideoFileClip, ImageClip, ColorClip, CompositeVideoClip, TextClip, AudioFileClip
+from PIL import Image
 import requests
 from io import BytesIO
 import json
