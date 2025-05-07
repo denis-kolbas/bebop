@@ -1,41 +1,62 @@
-name: Create Music Videos
+name: Generate Song Videos
 
 on:
-  workflow_run:
-    workflows: ["Scrape Apple Music"]
-    types:
-      - completed
-  workflow_dispatch:
+  schedule:
+    # Example: Run daily at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
-  create_videos:
+  generate-videos:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # Required for Workload Identity Federation (preferred)
+                       # OR if using SA key: none
+
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        cache: 'pip'
-    
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg
-    
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install "pillow<10.0.0" 
-        pip install google-cloud-storage moviepy requests
-        
-    - name: Verify installation
-      run: |
-        python -c "from moviepy.editor import VideoFileClip"
-        
-    - name: Create videos
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-      run: python video_creator.py
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Or your preferred version
+
+      # Option 1: Authenticate to GCP using Workload Identity Federation (Recommended)
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/YOUR_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_ID/providers/YOUR_PROVIDER_ID'
+          service_account: 'your-gcp-service-account-email@your-project-id.iam.gserviceaccount.com'
+          # token_format: 'access_token' # Use this if your library needs an access token directly
+                                        # google-cloud-python libraries usually use ADC automatically
+
+      # Option 2: Authenticate to GCP using Service Account Key JSON (Less Secure)
+      # - name: Authenticate to Google Cloud (Service Account Key)
+      #   uses: google-github-actions/setup-gcloud@v2
+      #   with:
+      #     project_id: 'YOUR_GCP_PROJECT_ID'
+      #     service_account_key: ${{ secrets.GCP_SA_KEY }}
+      #     export_default_credentials: true # Sets GOOGLE_APPLICATION_CREDENTIALS
+
+      - name: Install FFmpeg (usually pre-installed, but good to ensure)
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-cloud-storage moviepy requests Pillow
+
+      - name: Run video generation script
+        env:
+          # GOOGLE_APPLICATION_CREDENTIALS is set by google-github-actions/auth or setup-gcloud
+          BUCKET_NAME: "bebop_data " # You can also pass this as an env var
+        run: python apple_music.py # Replace with your Python script's filename
+
+      # Optional: Clean up credentials if using SA Key written to disk
+      # - name: Clean up GCP credentials
+      #   if: always() && steps.auth-sa.outputs.gcp_credentials_file_path # If using SA key written to file
+      #   run: rm -f "${{ steps.auth-sa.outputs.gcp_credentials_file_path }}"
