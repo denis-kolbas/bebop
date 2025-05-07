@@ -1,0 +1,8 @@
+moviepy==1.0.3
+google-cloud-storage
+Pillow
+requests
+numpy
+decorator
+tqdm
+imageio-ffmpeg
