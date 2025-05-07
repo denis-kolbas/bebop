@@ -69,11 +69,21 @@ def upload_video(video_path, bucket_name, folder):
    blob = bucket.blob(f"{folder}/videos/{os.path.basename(video_path)}")
    blob.upload_from_filename(video_path)
 
+def parse_views(view_str):
+   try:
+       if 'M' in view_str:
+           return int(float(view_str.replace('M', '')) * 1000000)
+       if 'K' in view_str:
+           return int(float(view_str.replace('K', '')) * 1000)
+       return int(view_str)
+   except:
+       return 0
+
 def main():
    init_gcp()
    bucket_name = os.environ.get('GCS_BUCKET_NAME')
    songs = get_latest_json(bucket_name)
-   top_songs = sorted(songs, key=lambda x: int(x['views'].replace('M','000000')), reverse=True)[:10]
+   top_songs = sorted(songs, key=lambda x: parse_views(x['views']), reverse=True)[:10]
    
    for i, song in enumerate(top_songs):
        try:
