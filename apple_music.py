@@ -67,7 +67,7 @@ def scrape_apple_music(bucket_name):
         # Upload to GCS
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
-        blob_name = f'apple_music_songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        blob_name = f'apple_music/songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
         blob = bucket.blob(blob_name)
         blob.upload_from_string(json.dumps(tracks, indent=2, ensure_ascii=False), content_type='application/json')
         print(f"Uploaded to GCS: {bucket_name}/{blob_name}")
