@@ -6,6 +6,7 @@ on:
     workflows: ["Scrape Apple Music"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   create_videos:
