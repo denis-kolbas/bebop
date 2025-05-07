@@ -1,34 +1,36 @@
 name: Create Music Videos
 
 on:
- workflow_run:
-   workflows: ["Scrape Apple Music"]
-   types:
-     - completed
- workflow_dispatch:
+  workflow_run:
+    workflows: ["Scrape Apple Music"]
+    types:
+      - completed
+  workflow_dispatch:
 
 jobs:
- create_videos:
-   runs-on: ubuntu-latest
-   steps:
-   - uses: actions/checkout@v2
-   
-   - uses: actions/setup-python@v2
-     with:
-       python-version: '3.x'
-      
-       
-   - name: Install system dependencies
-     run: |
-       sudo apt-get update
-       sudo apt-get install -y ffmpeg python3-dev python3-numpy
-       
-   - name: Install Python packages
-     run: |
-       pip install google-cloud-storage moviepy Pillow requests decorator tqdm numpy
-       
-   - name: Create videos
-     env:
-       GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-       GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-     run: python video_creator.py
+  create_videos:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg python3-dev python3-numpy
+        
+    - name: Install Python packages
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install moviepy --verbose
+        pip3 install google-cloud-storage Pillow requests decorator tqdm numpy
+        pip3 list
+        
+    - name: Create videos
+      env:
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+      run: python video_creator.py
