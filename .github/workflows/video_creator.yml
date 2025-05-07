@@ -15,14 +15,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
     
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y ffmpeg
         python -m pip install --upgrade pip
-        pip install moviepy
+        pip install "moviepy>=2.0.0" pillow google-cloud-storage numpy
     
     - name: Run test
       run: python video_creator.py
@@ -31,6 +31,6 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add test.mp4
-        git commit -m "Add test video" || echo "No changes"
+        git add *.mp4
+        git commit -m "Add videos" || echo "No changes"
         git push
