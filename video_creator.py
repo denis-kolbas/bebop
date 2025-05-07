@@ -3,7 +3,7 @@ from google.cloud import storage
 from moviepy.editor import VideoFileClip, ImageClip, ColorClip, CompositeVideoClip, TextClip, AudioFileClip
 import requests
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageResampling
 import json
 import datetime
 import numpy as np
@@ -56,7 +56,7 @@ def create_video(song_data):
     artwork_clip = ImageClip(artwork_array)
     artwork_clip = artwork_clip.set_duration(duration)
     artwork_size = int(width * 0.8)
-    artwork_clip = artwork_clip.resize(width=artwork_size)
+    artwork_clip = artwork_clip.resize(width=artwork_size, resample=ImageResampling.LANCZOS)
     artwork_clip = artwork_clip.set_position(('center', height//3))
     
     # Create text clips
