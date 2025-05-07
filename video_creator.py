@@ -1,4 +1,6 @@
+from google.cloud import storage
 import json
+from datetime import datetime
 import requests
 from moviepy.editor import ColorClip, TextClip, ImageClip, CompositeVideoClip
 from PIL import Image
@@ -6,11 +8,17 @@ from io import BytesIO
 import glob
 import os
 
-def get_latest_json(directory):
-    list_of_files = glob.glob(f'{directory}/songs_*.json')
-    latest_file = max(list_of_files, key=os.path.getctime)
-    with open(latest_file, 'r') as f:
-        return json.load(f)
+def get_latest_json(bucket_name, prefix):
+    client = storage.Client()
+    bucket = client.get_bucket(bucket_name)
+    
+    # List all blobs with the given prefix
+    blobs = list(bucket.list_blobs(prefix=prefix))
+    latest_blob = max(blobs, key=lambda x: x.name)
+    
+    # Download and parse JSON
+    json_data = json.loads(latest_blob.download_as_string())
+    return json_data
 
 def download_artwork(url):
     response = requests.get(url)
@@ -56,7 +64,7 @@ def create_music_preview(song_data):
 
 def main():
     # Replace with your GCP bucket path
-    json_data = get_latest_json('bebop_data/apple_music')
+    json_data = get_latest_json('GCP_BUCKET_NAME', 'bebop_data/apple_music/')
     
     # Process first song in the JSON file
     song_data = json_data[0]
