@@ -1,15 +1,11 @@
-name: Generate Music Videos
+name: Test Video
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
-  create-videos:
+  test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     
     steps:
     - uses: actions/checkout@v4
@@ -21,18 +17,6 @@ jobs:
     
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg imagemagick
         python -m pip install --upgrade pip
-        pip install moviepy==1.0.3 pillow requests google-cloud-storage numpy
-    
-    - name: Run video creator
-      run: python video_creator.py
-    
-    - name: Commit files
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add preview_*.mp4
-        git commit -m "Add videos" || echo "No changes"
-        git push
+        pip install -U imageio-ffmpeg
+        pip install moviepy matplotlib numpy
