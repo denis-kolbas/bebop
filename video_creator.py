@@ -1,57 +1,35 @@
-import json
+# video_creator.py
+import os
+from google.cloud import storage
 from moviepy.editor import *
 import requests
 from io import BytesIO
-from PIL import Image
-import os
-from google.cloud import storage
+import json
+import datetime
 
-def download_image(url):
-    # Download artwork and convert to MoviePy-compatible format
-    pass
+def init_gcp():
+   service_account_json = os.environ.get('GCP_SA_KEY')
+   with open('gcp_credentials.json', 'w') as f:
+       f.write(service_account_json)
+   os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
-def download_audio(preview_url):
-    # Download preview audio from Apple Music
-    pass
+def get_latest_json(bucket_name, folder):
+   storage_client = storage.Client()
+   bucket = storage_client.bucket(bucket_name)
+   blobs = bucket.list_blobs(prefix=folder)
+   latest = max(blobs, key=lambda x: x.updated)
+   json_string = latest.download_as_string()
+   return json.loads(json_string)
 
 def create_video(song_data):
-    # Video dimensions and duration
-    width, height = 1080, 1920
-    duration = 15
-    
-    # Create background (black)
-    background = ColorClip((width, height), color=(0,0,0), duration=duration)
-    
-    # Add centered artwork
-    artwork = download_image(song_data['artwork_url'])
-    # Resize and position artwork
-    
-    # Create text overlays
-    text_clips = [
-        TextClip(song_data['song_name'], fontsize=70, color='white'),
-        TextClip(song_data['artist'], fontsize=50, color='white'),
-        TextClip(song_data['album'], fontsize=40, color='white')
-    ]
-    # Position text at bottom
-    
-    # Add audio
-    audio = download_audio(song_data['preview_url'])
-    
-    # Compose video
-    final = CompositeVideoClip([background, artwork] + text_clips)
-    final = final.set_audio(audio)
-    
-    return final
-
-def process_songs(json_file):
-    # Load and sort songs by views
-    with open(json_file) as f:
-        songs = json.load(f)
-    
-    top_songs = sorted(songs, key=lambda x: int(x['views'].replace('M','000000')), reverse=True)[:10]
-    
-    for song in top_songs:
-        video = create_video(song)
-        filename = f"{song['song_name']}_{song['artist']}.mp4"
-        video.write_videofile(filename)
-        upload_to_gcs(filename)
+   width, height = 1080, 1920
+   duration = 15
+   
+   background = ColorClip((width, height), color=(0,0,0), duration=duration)
+   
+   # Download artwork
+   response = requests.get(song_data['artwork_url'])
+   img = Image.open(BytesIO(response.content))
+   artwork_clip = ImageClip(img).set_duration(duration)
+   artwork_clip = artwork_clip.resize(width=width*0.8)
+   artwork_cli
