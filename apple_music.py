@@ -16,27 +16,23 @@ def init_gcp():
 
 def get_song_views(song_name, artist_name):
    try:
-       ytmusic = YTMusic()
-       search_query = f"{song_name} {artist_name}"
-       results = ytmusic.search(search_query, filter='songs', limit=1)
-       
-       if results:
-           video_id = results[0].get('videoId')
-           if video_id:
-               video_results = ytmusic.search(search_query, filter='videos', limit=1)
-               if video_results:
-                   return video_results[0].get('views', '0')
+       ytmusic = YTMusic('oauth.json', authenticate=False)
+       search_query = f"{song_name} {artist_name} official"
+       results = ytmusic.search(search_query, filter='videos', limit=1)
+       if results and len(results) > 0:
+           return results[0].get('views', '0')
        return '0'
-   except:
+   except Exception as e:
+       print(f"YouTube search error: {e}")
        return '0'
 
-def upload_to_gcs(data, bucket_name, folder):
+def upload_to_gcs(data, bucket_name):
    storage_client = storage.Client()
    bucket = storage_client.bucket(bucket_name)
-   filename = f'songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-   blob = bucket.blob(f'{folder}/{filename}')
+   filename = f'apple_music/songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+   blob = bucket.blob(filename)
    blob.upload_from_string(data, content_type='application/json')
-   print(f"Uploaded to {bucket_name}/{folder}/{filename}")
+   print(f"Uploaded to {bucket_name}/{filename}")
 
 def scrape_apple_music():
    init_gcp()
@@ -59,14 +55,18 @@ def scrape_apple_music():
                song_soup = BeautifulSoup(song_response.text, 'html.parser')
                
                artwork = song_soup.find('div', {'class': 'artwork-component'})
+               colors = {}
                artwork_url = None
+               
                if artwork:
+                   bg_color = re.search(r'--artwork-bg-color: (#[A-Fa-f0-9]+)', artwork['style'])
+                   if bg_color:
+                       colors['artwork_bg_color'] = bg_color.group(1)
                    try:
                        style_img = artwork.find('picture').find('source')['srcset']
-                       # Get highest resolution URL
                        artwork_url = style_img.split(',')[-1].split(' ')[0]
                    except:
-                       print(f"Could not extract artwork URL for {song_data.get('name')}")
+                       print(f"Could not extract artwork URL")
                
                song_schema = song_soup.find('script', {'id': 'schema:song'})
                if song_schema:
@@ -96,8 +96,7 @@ def scrape_apple_music():
 
        json_data = json.dumps(tracks, indent=2, ensure_ascii=False)
        bucket_name = os.environ.get('GCS_BUCKET_NAME')
-       folder = 'apple_music'
-       upload_to_gcs(json_data, bucket_name, folder)
+       upload_to_gcs(json_data, bucket_name)
 
        return tracks
 
