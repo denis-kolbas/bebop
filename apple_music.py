@@ -59,11 +59,14 @@ def scrape_apple_music():
                song_soup = BeautifulSoup(song_response.text, 'html.parser')
                
                artwork = song_soup.find('div', {'class': 'artwork-component'})
-               colors = {}
-               if artwork and artwork.get('style'):
-                   bg_color = re.search(r'--artwork-bg-color: (#[A-Fa-f0-9]+)', artwork['style'])
-                   if bg_color:
-                       colors['artwork_bg_color'] = bg_color.group(1)
+               artwork_url = None
+               if artwork:
+                   try:
+                       style_img = artwork.find('picture').find('source')['srcset']
+                       # Get highest resolution URL
+                       artwork_url = style_img.split(',')[-1].split(' ')[0]
+                   except:
+                       print(f"Could not extract artwork URL for {song_data.get('name')}")
                
                song_schema = song_soup.find('script', {'id': 'schema:song'})
                if song_schema:
@@ -79,6 +82,7 @@ def scrape_apple_music():
                        'preview_url': audio_data.get('audio', {}).get('contentUrl', ''),
                        'release_date': audio_data.get('datePublished'),
                        'song_url': song_url,
+                       'artwork_url': artwork_url,
                        'artwork_bg_color': colors.get('artwork_bg_color'),
                        'views': get_song_views(song_name, artist_name),
                        'scrape_date': scrape_date
