@@ -1,7 +1,7 @@
 # video_creator.py
 import os
 from google.cloud import storage
-from moviepy.editor import *
+from moviepy.editor import VideoFileClip, ImageClip, ColorClip, CompositeVideoClip, TextClip, AudioFileClip
 import requests
 from io import BytesIO
 import json
