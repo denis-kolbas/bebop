@@ -103,11 +103,11 @@ def main():
     songs = get_latest_json(bucket_name)
     
     # Sort by views and get top 10
-    top_songs = sorted(songs, key=lambda x: parse_views(x['views']), reverse=True)[:10]
+    top_songs = sorted(songs, key=lambda x: parse_views(x['views']), reverse=True)[:3]
     
     for i, song in enumerate(top_songs):
         try:
-            print(f"Processing video {i+1}/10: {song['song_name']}")
+            print(f"Processing video {i+1}/3: {song['song_name']}")
             video = create_video(song)
             filename = f"song_{i}_{song['song_name'].replace(' ', '_')}.mp4"
             video.write_videofile(filename, fps=24)
