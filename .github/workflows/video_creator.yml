@@ -1,18 +1,16 @@
+# .github/workflows/main.yml
+
 name: Generate Song Videos
 
 on:
   schedule:
-    # Example: Run daily at 02:00 UTC
+    # Example: Run daily at 02:00 UTC (adjust as needed)
     - cron: '0 2 * * *'
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch: # Allows manual triggering from the Actions tab
 
 jobs:
   generate-videos:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write' # Required for Workload Identity Federation (preferred)
-                       # OR if using SA key: none
+    runs-on: ubuntu-latest # Uses a Linux runner with FFmpeg typically available
 
     steps:
       - name: Checkout repository
@@ -21,29 +19,23 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Or your preferred version
+          python-version: '3.10' # Or your preferred Python version
 
-      # Option 1: Authenticate to GCP using Workload Identity Federation (Recommended)
+      # Authenticate to Google Cloud using Service Account Key JSON
+      # This step assumes you have a GitHub Secret named GCP_SA_KEY
+      # containing the JSON content of your service account key.
       - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v2
+        id: gcloud-auth
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          workload_identity_provider: 'projects/YOUR_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_ID/providers/YOUR_PROVIDER_ID'
-          service_account: 'your-gcp-service-account-email@your-project-id.iam.gserviceaccount.com'
-          # token_format: 'access_token' # Use this if your library needs an access token directly
-                                        # google-cloud-python libraries usually use ADC automatically
+          project_id: 'larq-453712 ' # <-- IMPORTANT: Replace with your GCP Project ID
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true # This sets the GOOGLE_APPLICATION_CREDENTIALS env var
 
-      # Option 2: Authenticate to GCP using Service Account Key JSON (Less Secure)
-      # - name: Authenticate to Google Cloud (Service Account Key)
-      #   uses: google-github-actions/setup-gcloud@v2
-      #   with:
-      #     project_id: 'YOUR_GCP_PROJECT_ID'
-      #     service_account_key: ${{ secrets.GCP_SA_KEY }}
-      #     export_default_credentials: true # Sets GOOGLE_APPLICATION_CREDENTIALS
-
-      - name: Install FFmpeg (usually pre-installed, but good to ensure)
+      - name: Install FFmpeg (if not already on runner, or to ensure version)
         run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
       - name: Install Python dependencies
         run: |
@@ -52,11 +44,13 @@ jobs:
 
       - name: Run video generation script
         env:
-          # GOOGLE_APPLICATION_CREDENTIALS is set by google-github-actions/auth or setup-gcloud
-          BUCKET_NAME: "bebop_data " # You can also pass this as an env var
-        run: python apple_music.py # Replace with your Python script's filename
+          # The Python script should be able to pick this up if it's designed to,
+          # or you can ensure the BUCKET_NAME variable inside your Python script is set correctly.
+          # The provided Python script has BUCKET_NAME as a global variable.
+          # Make sure it's set to "bebop_data" IN THE PYTHON SCRIPT ITSELF.
+          # Setting it here is good practice if your script is adapted to read it.
+          GCP_BUCKET_NAME_ENV: "bebop_data" # Example if script reads this env var
+        run: python video_creator.py # <-- IMPORTANT: Replace with your Python script's filename
 
-      # Optional: Clean up credentials if using SA Key written to disk
-      # - name: Clean up GCP credentials
-      #   if: always() && steps.auth-sa.outputs.gcp_credentials_file_path # If using SA key written to file
-      #   run: rm -f "${{ steps.auth-sa.outputs.gcp_credentials_file_path }}"
+      # Optional: Add steps to clean up or notify upon completion/failure
+      # For example, upload logs or send a notification.
