@@ -6,6 +6,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v4
@@ -17,6 +19,18 @@ jobs:
     
     - name: Install dependencies
       run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
         python -m pip install --upgrade pip
-        pip install -U imageio-ffmpeg
-        pip install moviepy matplotlib numpy
+        pip install moviepy
+    
+    - name: Run test
+      run: python video_creator.py
+    
+    - name: Commit files
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add test.mp4
+        git commit -m "Add test video" || echo "No changes"
+        git push
