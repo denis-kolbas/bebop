@@ -1,8 +1,18 @@
-from moviepy.editor import ColorClip, TextClip, CompositeVideoClip
+from moviepy import VideoFileClip, TextClip, CompositeVideoClip, ColorClip
+import logging
 
-# Create a simple 2-second clip
-clip = ColorClip(size=(720, 480), color=(255, 128, 0), duration=2)
-txt = TextClip("Test", fontsize=70, color='white')
-txt = txt.set_pos('center').set_duration(2)
+logging.basicConfig(level=logging.INFO)
+
+# Create base clip
+clip = ColorClip(size=(720, 480), color=(255, 128, 0)).with_duration(2)
+
+# Create text
+txt = TextClip(
+    text="Test",
+    font_size=70,
+    color='white'
+).with_duration(2).with_position('center')
+
+# Combine
 video = CompositeVideoClip([clip, txt])
-video.write_videofile("test.mp4", fps=24)
+video.write_videofile("test.mp4")
