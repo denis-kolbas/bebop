@@ -1,15 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-import csv
 import datetime
 import re
 
 def scrape_apple_music_playlist():
    url = "https://music.apple.com/az/playlist/new-music-daily/pl.2b0e6e332fdf4b7a91164da3162127b5"
-   headers = {
-       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-   }
+   headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
    try:
        response = requests.get(url, headers=headers)
@@ -30,8 +27,7 @@ def scrape_apple_music_playlist():
 
            track_info = {
                'song_name': track.get('name', ''),
-               'artist_name': track.get('byArtist', {}).get('name', ''),
-               'album': track.get('inAlbum', {}).get('name', ''),
+               'song_url': track.get('url', ''),
                'duration': track.get('duration', '').replace('PT', '').replace('M', ':').replace('S', ''),
                'artwork_url': high_res_artwork,
                'scrape_date': scrape_date
@@ -39,12 +35,10 @@ def scrape_apple_music_playlist():
            tracks.append(track_info)
 
        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-       filename = f'apple_music_playlist_{timestamp}.csv'
+       filename = f'apple_music_playlist_{timestamp}.json'
        
-       with open(filename, 'w', newline='', encoding='utf-8') as f:
-           writer = csv.DictWriter(f, fieldnames=tracks[0].keys())
-           writer.writeheader()
-           writer.writerows(tracks)
+       with open(filename, 'w', encoding='utf-8') as f:
+           json.dump(tracks, f, indent=2, ensure_ascii=False)
 
        return tracks
 
