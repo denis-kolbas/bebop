@@ -25,4 +25,4 @@ jobs:
       env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-      run: python scraper.py
+      run: python apple_music.py
