@@ -14,7 +14,15 @@ jobs:
       with:
         python-version: '3.x'
     - run: pip install google-cloud-storage requests beautifulsoup4
-    - env:
+    - name: Debug Service Account
+      run: |
+        echo "First few chars of GCP_SA_KEY: ${GCP_SA_KEY:0:50}"
+        echo "Bucket name: $GCS_BUCKET_NAME"
+      env:
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+    - name: Run scraper
+      env:
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
       run: python scraper.py
