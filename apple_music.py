@@ -33,7 +33,7 @@ def get_song_views(song_name, artist_name):
 def upload_to_gcs(data, bucket_name, folder):
    storage_client = storage.Client()
    bucket = storage_client.bucket(bucket_name)
-   filename = f'apple_music_songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+   filename = f'songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
    blob = bucket.blob(f'{folder}/{filename}')
    blob.upload_from_string(data, content_type='application/json')
    print(f"Uploaded to {bucket_name}/{folder}/{filename}")
@@ -92,7 +92,7 @@ def scrape_apple_music():
 
        json_data = json.dumps(tracks, indent=2, ensure_ascii=False)
        bucket_name = os.environ.get('GCS_BUCKET_NAME')
-       folder = 'folder1'
+       folder = 'apple_music'
        upload_to_gcs(json_data, bucket_name, folder)
 
        return tracks
