@@ -6,6 +6,7 @@ import json
 import datetime
 import time
 import re
+from ytmusicapi import YTMusic
 
 def init_gcp():
    service_account_json = os.environ.get('GCP_SA_KEY')
@@ -13,10 +14,26 @@ def init_gcp():
        f.write(service_account_json)
    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
+def get_song_views(song_name, artist_name):
+   try:
+       ytmusic = YTMusic()
+       search_query = f"{song_name} {artist_name}"
+       results = ytmusic.search(search_query, filter='songs', limit=1)
+       
+       if results:
+           video_id = results[0].get('videoId')
+           if video_id:
+               video_results = ytmusic.search(search_query, filter='videos', limit=1)
+               if video_results:
+                   return video_results[0].get('views', '0')
+       return '0'
+   except:
+       return '0'
+
 def upload_to_gcs(data, bucket_name, folder):
    storage_client = storage.Client()
    bucket = storage_client.bucket(bucket_name)
-   filename = f'songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+   filename = f'apple_music_songs_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
    blob = bucket.blob(f'{folder}/{filename}')
    blob.upload_from_string(data, content_type='application/json')
    print(f"Uploaded to {bucket_name}/{folder}/{filename}")
@@ -52,15 +69,18 @@ def scrape_apple_music():
                if song_schema:
                    song_data = json.loads(song_schema.string)
                    audio_data = song_data.get('audio', {})
+                   song_name = song_data.get('name', '')
+                   artist_name = audio_data.get('byArtist', [{}])[0].get('name', '')
                    
                    track_info = {
-                       'song_name': song_data.get('name', ''),
+                       'song_name': song_name,
                        'album': audio_data.get('inAlbum', {}).get('name', ''),
-                       'artist': audio_data.get('byArtist', [{}])[0].get('name', ''),
+                       'artist': artist_name,
                        'preview_url': audio_data.get('audio', {}).get('contentUrl', ''),
                        'release_date': audio_data.get('datePublished'),
                        'song_url': song_url,
                        'artwork_bg_color': colors.get('artwork_bg_color'),
+                       'views': get_song_views(song_name, artist_name),
                        'scrape_date': scrape_date
                    }
                    tracks.append(track_info)
@@ -72,7 +92,7 @@ def scrape_apple_music():
 
        json_data = json.dumps(tracks, indent=2, ensure_ascii=False)
        bucket_name = os.environ.get('GCS_BUCKET_NAME')
-       folder = 'apple_music'
+       folder = 'folder1'
        upload_to_gcs(json_data, bucket_name, folder)
 
        return tracks
