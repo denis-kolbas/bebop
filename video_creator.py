@@ -13,15 +13,21 @@ def init_gcp():
        f.write(service_account_json)
    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
-def get_latest_json(bucket_name, folder):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    # Look for json files specifically
-    blobs = list(bucket.list_blobs(prefix=f"{folder}/songs"))
-    if not blobs:
-        raise Exception("No JSON files found")
-    latest = max(blobs, key=lambda x: x.updated)
-    return json.loads(latest.download_as_string())
+def get_latest_json(bucket_name):
+   storage_client = storage.Client()
+   bucket = storage_client.bucket(bucket_name)
+   blobs = list(bucket.list_blobs(prefix='apple_music'))
+   if not blobs:
+       raise Exception("No JSON files found")
+   
+   # Filter for JSON files and get latest
+   json_blobs = [b for b in blobs if b.name.endswith('.json')]
+   if not json_blobs:
+       raise Exception("No JSON files found")
+       
+   latest = max(json_blobs, key=lambda x: x.updated)
+   print(f"Loading latest JSON: {latest.name}")
+   return json.loads(latest.download_as_string())
 
 def create_video(song_data):
    width, height = 1080, 1920
@@ -66,9 +72,7 @@ def upload_video(video_path, bucket_name, folder):
 def main():
    init_gcp()
    bucket_name = os.environ.get('GCS_BUCKET_NAME')
-   folder = 'videos'
-   
-   songs = get_latest_json(bucket_name, folder)
+   songs = get_latest_json(bucket_name)
    top_songs = sorted(songs, key=lambda x: int(x['views'].replace('M','000000')), reverse=True)[:10]
    
    for i, song in enumerate(top_songs):
