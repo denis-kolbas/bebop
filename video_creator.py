@@ -64,7 +64,7 @@ def upload_video(video_path, bucket_name, folder):
 def main():
    init_gcp()
    bucket_name = os.environ.get('GCS_BUCKET_NAME')
-   folder = 'folder1'
+   folder = 'videos'
    
    songs = get_latest_json(bucket_name, folder)
    top_songs = sorted(songs, key=lambda x: int(x['views'].replace('M','000000')), reverse=True)[:10]
