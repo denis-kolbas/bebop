@@ -1,28 +1,35 @@
-name: Scrape Apple Music
+name: Apple Music Scraper
 
 on:
+  # Schedule to run at 9AM UTC daily
   schedule:
-    - cron: '0 */6 * * *'  
+    - cron: '0 9 * * *'
+  
+  # Keep the manual trigger option
   workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-    - run: pip install google-cloud-storage requests beautifulsoup4 ytmusicapi
-    - name: Debug Service Account
-      run: |
-        echo "First few chars of GCP_SA_KEY: ${GCP_SA_KEY:0:50}"
-        echo "Bucket name: $GCS_BUCKET_NAME"
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-    - name: Run scraper
-      env:
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-      run: python apple_music.py
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-cloud-storage requests beautifulsoup4 ytmusicapi
+      
+      - name: Create OAuth file from secret
+        run: echo '${{ secrets.YOUTUBE_OAUTH_JSON }}' > oauth.json
+      
+      - name: Run scraper
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: python apple_music.py
