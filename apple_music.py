@@ -68,16 +68,28 @@ def select_new_songs(tracks, bucket_name, num_songs=10):
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
     for track in new_tracks:
         track['selected_date'] = current_date
-    
-    # Sort by views (convert to integers for proper sorting)
-    for track in new_tracks:
-        # Clean view count (remove "views", commas, etc)
-        view_count = track['views']
-        if isinstance(view_count, str):
-            view_count = re.sub(r'[^0-9]', '', view_count)
-            track['views_int'] = int(view_count) if view_count else 0
-        else:
-            track['views_int'] = 0
+        
+        # Parse view count properly
+        view_str = str(track['views'])
+        # Remove any non-numeric characters except K, M, B and decimal points
+        view_str = re.sub(r'[^0-9KMBkmb\.]', '', view_str)
+        
+        # Convert to numeric value
+        views_int = 0
+        try:
+            if 'M' in view_str.upper():
+                views_int = float(view_str.upper().replace('M', '')) * 1000000
+            elif 'K' in view_str.upper():
+                views_int = float(view_str.upper().replace('K', '')) * 1000
+            elif 'B' in view_str.upper():
+                views_int = float(view_str.upper().replace('B', '')) * 1000000000
+            else:
+                views_int = float(view_str) if view_str else 0
+            views_int = int(views_int)
+        except ValueError:
+            views_int = 0
+            
+        track['views_int'] = views_int
     
     # Sort by views (descending)
     new_tracks.sort(key=lambda x: x['views_int'], reverse=True)
