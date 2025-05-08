@@ -14,17 +14,31 @@ def init_gcp():
        f.write(service_account_json)
    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
+
+
 def get_song_views(song_name, artist_name):
-   try:
-       ytmusic = YTMusic('oauth.json', authenticate=False)
-       search_query = f"{song_name} {artist_name} official"
-       results = ytmusic.search(search_query, filter='videos', limit=1)
-       if results and len(results) > 0:
-           return results[0].get('views', '0')
-       return '0'
-   except Exception as e:
-       print(f"YouTube search error: {e}")
-       return '0'
+    try:
+        # Use the auth file we created
+        ytmusic = YTMusic('oauth.json')
+        
+        search_query = f"{song_name} {artist_name} official"
+        print(f"Searching YouTube for: {search_query}")
+        
+        # Search for videos
+        results = ytmusic.search(search_query, filter='videos', limit=1)
+        
+        # Did we get any results?
+        if results and len(results) > 0:
+            # Try to get the view count
+            views = results[0].get('viewCount', '0')
+            print(f"Found video: {results[0].get('title')} - Views: {views}")
+            return views
+        
+        print(f"No results found for: {search_query}")
+        return '0'
+    except Exception as e:
+        print(f"YouTube search error: {e}")
+        return '0'
 
 def upload_to_gcs(data, bucket_name):
    storage_client = storage.Client()
