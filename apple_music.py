@@ -6,7 +6,11 @@ import json
 import datetime
 import time
 import re
-from ytmusicapi import YTMusic
+from ytmusicapi import YTMusic, OAuthCredentials
+
+# OAuth credentials
+CLIENT_ID = "YOUR_CLIENT_ID_HERE"
+CLIENT_SECRET = "YOUR_CLIENT_SECRET_HERE"
 
 def init_gcp():
    service_account_json = os.environ.get('GCP_SA_KEY')
@@ -14,31 +18,23 @@ def init_gcp():
        f.write(service_account_json)
    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
-
-
 def get_song_views(song_name, artist_name):
-    try:
-        # Use the auth file we created
-        ytmusic = YTMusic('oauth.json')
-        
-        search_query = f"{song_name} {artist_name} official"
-        print(f"Searching YouTube for: {search_query}")
-        
-        # Search for videos
-        results = ytmusic.search(search_query, filter='videos', limit=1)
-        
-        # Did we get any results?
-        if results and len(results) > 0:
-            # Try to get the view count
-            views = results[0].get('viewCount', '0')
-            print(f"Found video: {results[0].get('title')} - Views: {views}")
-            return views
-        
-        print(f"No results found for: {search_query}")
-        return '0'
-    except Exception as e:
-        print(f"YouTube search error: {e}")
-        return '0'
+   try:
+       ytmusic = YTMusic('oauth.json', oauth_credentials=OAuthCredentials(
+           client_id=CLIENT_ID,
+           client_secret=CLIENT_SECRET
+       ))
+       search_query = f"{song_name} {artist_name} official"
+       results = ytmusic.search(search_query, filter='videos', limit=1)
+       if results and len(results) > 0:
+           # Try different field names that might contain view count
+           for field in ['videoCountText', 'viewCount', 'views']:
+               if field in results[0]:
+                   return results[0][field]
+       return '0'
+   except Exception as e:
+       print(f"YouTube search error: {e}")
+       return '0'
 
 def upload_to_gcs(data, bucket_name):
    storage_client = storage.Client()
