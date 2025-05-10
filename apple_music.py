@@ -7,6 +7,9 @@ import datetime
 import time
 import re
 from ytmusicapi import YTMusic, OAuthCredentials
+import base64
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 
 # OAuth credentials
 CLIENT_ID = "YOUR_CLIENT_ID_HERE"
