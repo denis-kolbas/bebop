@@ -67,17 +67,15 @@ def select_new_songs(tracks, bucket_name, num_songs=10):
     # Filter out previously selected songs
     new_tracks = [track for track in tracks if track['song_url'] not in selected_song_ids]
     
-    # Add selection date to each song
+    # Parse view counts and add selection date
     current_date = datetime.datetime.now().strftime("%Y-%m-%d")
     for track in new_tracks:
         track['selected_date'] = current_date
         
-        # Parse view count properly
+        # Parse view count
         view_str = str(track['views'])
-        # Remove any non-numeric characters except K, M, B and decimal points
         view_str = re.sub(r'[^0-9KMBkmb\.]', '', view_str)
         
-        # Convert to numeric value
         views_int = 0
         try:
             if 'M' in view_str.upper():
@@ -94,21 +92,25 @@ def select_new_songs(tracks, bucket_name, num_songs=10):
             
         track['views_int'] = views_int
     
+    # Filter out songs with more than 20 million views
+    new_tracks = [track for track in new_tracks if track['views_int'] <= 20000000]
+    
     # Sort by views (descending)
     new_tracks.sort(key=lambda x: x['views_int'], reverse=True)
     
     # Select top 10 songs by views
     newly_selected = new_tracks[:min(num_songs, len(new_tracks))]
     
-    # Add to master list
-    selected_songs.extend(newly_selected)
-    
-    # Save updated list
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob('selected_songs.json')
-    blob.upload_from_string(json.dumps(selected_songs), content_type='application/json')
-    
+    # Add to master list and save
+    if newly_selected:
+        selected_songs.extend(newly_selected)
+        
+        # Save updated list
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob('selected_songs.json')
+        blob.upload_from_string(json.dumps(selected_songs), content_type='application/json')
+        
     return newly_selected
 
 def scrape_apple_music():
