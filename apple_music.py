@@ -59,7 +59,7 @@ def get_selected_songs(bucket_name):
    
    return selected_songs
 
-def select_new_songs(tracks, bucket_name, num_songs=10):
+def select_new_songs(tracks, bucket_name, num_songs=20):
     # Get previously selected songs
     selected_songs = get_selected_songs(bucket_name)
     selected_song_ids = set(song['song_url'] for song in selected_songs)
