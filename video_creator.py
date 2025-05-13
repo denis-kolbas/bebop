@@ -270,7 +270,7 @@ def generate_music_preview_video(song_data, index=0):
         
         # Create "WEEKLY ROTATION" text (left-aligned) - made bolder with semibold font
         weekly_rotation_text = TextClip(
-            txt="WEEKLY ROTATION",
+            txt="NEW MUSIC TODAY",
             fontsize=42,
             color='white',
             font=outfit_semibold,  # Changed to semibold for more emphasis
