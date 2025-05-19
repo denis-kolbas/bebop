@@ -79,6 +79,7 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
    selected_song_ids = set()
    for song in selected_songs:
        # Skip songs already tagged for video creation
+     if song.get('create_video', False):
        selected_song_ids.add(song['song_url'])
    
    # Filter out previously selected songs
