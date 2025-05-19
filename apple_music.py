@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import datetime
+from datetime import timedelta
 import time
 import re
 from ytmusicapi import YTMusic, OAuthCredentials
@@ -71,58 +72,118 @@ def get_selected_songs(bucket_name):
    return selected_songs
 
 def select_new_songs(tracks, bucket_name, num_songs=20):
-    # Get previously selected songs
-    selected_songs = get_selected_songs(bucket_name)
-    selected_song_ids = set(song['song_url'] for song in selected_songs)
-    
-    # Filter out previously selected songs
-    new_tracks = [track for track in tracks if track['song_url'] not in selected_song_ids]
-    
-    # Parse view counts and add selection date
-    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    for track in new_tracks:
-        track['selected_date'] = current_date
-        
-        # Parse view count
-        view_str = str(track['views'])
-        view_str = re.sub(r'[^0-9KMBkmb\.]', '', view_str)
-        
-        views_int = 0
-        try:
-            if 'M' in view_str.upper():
-                views_int = float(view_str.upper().replace('M', '')) * 1000000
-            elif 'K' in view_str.upper():
-                views_int = float(view_str.upper().replace('K', '')) * 1000
-            elif 'B' in view_str.upper():
-                views_int = float(view_str.upper().replace('B', '')) * 1000000000
-            else:
-                views_int = float(view_str) if view_str else 0
-            views_int = int(views_int)
-        except ValueError:
-            views_int = 0
-            
-        track['views_int'] = views_int
-    
-    # Filter out songs with more than 20 million views
-    new_tracks = [track for track in new_tracks if track['views_int'] <= 20000000]
-    
-    # Sort by views (descending)
-    new_tracks.sort(key=lambda x: x['views_int'], reverse=True)
-    
-    # Select top 10 songs by views
-    newly_selected = new_tracks[:min(num_songs, len(new_tracks))]
-    
-    # Add to master list and save
-    if newly_selected:
-        selected_songs.extend(newly_selected)
-        
-        # Save updated list
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob('selected_songs.json')
-        blob.upload_from_string(json.dumps(selected_songs), content_type='application/json')
-        
-    return newly_selected
+   # Get previously selected songs
+   selected_songs = get_selected_songs(bucket_name)
+   
+   # Identify songs already processed or tagged for video
+   selected_song_ids = set()
+   for song in selected_songs:
+       # Skip songs already tagged for video creation
+       selected_song_ids.add(song['song_url'])
+   
+   # Filter out previously selected songs
+   new_tracks = [track for track in tracks if track['song_url'] not in selected_song_ids]
+   
+   # Also get songs from the last 5 days that weren't selected
+   current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+   five_days_ago = (datetime.datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
+   
+   # Get songs from previous scrapes in the last 5 days
+   storage_client = storage.Client()
+   bucket = storage_client.bucket(bucket_name)
+   
+   # List all apple_music scrape files from last 5 days
+   blobs = list(bucket.list_blobs(prefix='apple_music/'))
+   recent_blobs = [b for b in blobs if five_days_ago <= b.name.split('_')[1].split('_')[0] <= current_date]
+   
+   recent_tracks = []
+   for blob in recent_blobs:
+       try:
+           tracks_data = json.loads(blob.download_as_string())
+           recent_tracks.extend(tracks_data)
+       except:
+           continue
+   
+   # Filter out previously selected tracks
+   recent_tracks = [track for track in recent_tracks if track['song_url'] not in selected_song_ids]
+   
+   # Combine with new tracks, removing duplicates
+   all_tracks = new_tracks.copy()
+   existing_urls = set(track['song_url'] for track in all_tracks)
+   
+   for track in recent_tracks:
+       if track['song_url'] not in existing_urls:
+           all_tracks.append(track)
+           existing_urls.add(track['song_url'])
+   
+   # Add selection date and normalize views
+   for track in all_tracks:
+       track['selected_date'] = current_date
+       
+       # Parse view count
+       view_str = str(track.get('views', '0'))
+       view_str = re.sub(r'[^0-9KMBkmb\.]', '', view_str)
+       
+       views_int = 0
+       try:
+           if 'M' in view_str.upper():
+               views_int = float(view_str.upper().replace('M', '')) * 1000000
+           elif 'K' in view_str.upper():
+               views_int = float(view_str.upper().replace('K', '')) * 1000
+           elif 'B' in view_str.upper():
+               views_int = float(view_str.upper().replace('B', '')) * 1000000000
+           else:
+               views_int = float(view_str) if view_str else 0
+           views_int = int(views_int)
+       except ValueError:
+           views_int = 0
+           
+       track['views_int'] = views_int
+       
+       # Normalize views based on days since release or scrape
+       days_since = 1
+       if track.get('release_date'):
+           try:
+               release_date = datetime.datetime.strptime(track['release_date'][:10], "%Y-%m-%d")
+               days_since = max(1, (datetime.datetime.now() - release_date).days)
+           except:
+               pass
+       elif track.get('scrape_date'):
+           try:
+               scrape_date = datetime.datetime.strptime(track['scrape_date'], "%Y-%m-%d")
+               days_since = max(1, (datetime.datetime.now() - scrape_date).days)
+           except:
+               pass
+       
+       track['normalized_views'] = track['views_int'] / days_since
+   
+   # Filter out songs with more than 20 million views
+   all_tracks = [track for track in all_tracks if track['views_int'] <= 20000000]
+   
+   # Sort by normalized views (descending)
+   all_tracks.sort(key=lambda x: x.get('normalized_views', 0), reverse=True)
+   
+   # Select top songs by normalized views
+   newly_selected = all_tracks[:min(num_songs, len(all_tracks))]
+   
+   # Add create_video field (default false)
+   for track in newly_selected:
+       track['create_video'] = False
+   
+   # Add to master list and save
+   if newly_selected:
+       selected_songs.extend(newly_selected)
+       
+       # Save updated list
+       storage_client = storage.Client()
+       bucket = storage_client.bucket(bucket_name)
+       blob = bucket.blob('selected_songs.json')
+       blob.upload_from_string(json.dumps(selected_songs), content_type='application/json')
+       
+       # Generate Google Form for the new songs
+       create_google_form(newly_selected, bucket_name)
+       
+   return newly_selected
 
 def scrape_apple_music():
   init_gcp()
