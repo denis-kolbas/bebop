@@ -1,24 +1,37 @@
-# Replace direct credential paths with environment variables
 import os
-import base64
 import json
+import datetime
+import time
+from google.cloud import storage
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 
 # Spotify API credentials from environment variables
 SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8888/callback"  # Still needed for setup
 SPOTIFY_PLAYLIST_ID = "23jlRqLpPrVUPhMuGGtfX9"
-
-# For non-interactive auth, use refresh token
 SPOTIFY_REFRESH_TOKEN = os.environ.get("SPOTIFY_REFRESH_TOKEN")
 
 # GCP configuration
 GCS_BUCKET_NAME = "bebop_data"
 GCS_BLOB_NAME = "selected_songs.json"
 
+# Number of days to keep songs in playlist
+DAYS_TO_KEEP_SONGS = 7
+
 def initialize_gcp():
     """Initialize GCP credentials from environment variable"""
-    # Create a temporary file with the service account JSON
     gcp_sa_content = os.environ.get("GCP_SA_KEY")
     temp_sa_file = "/tmp/gcp_sa.json"
     with open(temp_sa_file, "w") as f:
@@ -51,3 +64,195 @@ def get_spotify_client():
     except Exception as e:
         logging.error(f"Failed to authenticate with Spotify: {str(e)}")
         raise
+
+def fix_encoding(text):
+    """Fix double-encoded UTF-8 characters in text"""
+    if not text:
+        return ""
+    
+    # Try to detect and fix double-encoded UTF-8
+    try:
+        # This handles cases where UTF-8 was encoded again as UTF-8
+        return text.encode('latin1').decode('utf-8')
+    except (UnicodeError, UnicodeDecodeError):
+        # If that doesn't work, return the original text
+        return text
+
+def fetch_songs_from_gcs():
+    """Fetch songs from Google Cloud Storage"""
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(GCS_BUCKET_NAME)
+        blob = bucket.blob(GCS_BLOB_NAME)
+        
+        content = blob.download_as_string()
+        songs_data = json.loads(content)
+        
+        # Fix text encoding issues
+        for song in songs_data:
+            song['song_name'] = fix_encoding(song['song_name'])
+            song['artist'] = fix_encoding(song['artist'])
+            song['album'] = fix_encoding(song['album'])
+        
+        logging.info(f"Successfully fetched {len(songs_data)} songs from GCS")
+        return songs_data
+    except Exception as e:
+        logging.error(f"Failed to fetch songs from GCS: {str(e)}")
+        raise
+
+def get_current_date():
+    """Get current date in YYYY-MM-DD format"""
+    return datetime.datetime.now().strftime("%Y-%m-%d")
+
+def search_spotify_track(sp, song_name, artist_name):
+    """Search for a track on Spotify and return its ID"""
+    query = f"track:{song_name} artist:{artist_name}"
+    try:
+        results = sp.search(q=query, type="track", limit=1)
+        
+        if results['tracks']['items']:
+            track = results['tracks']['items'][0]
+            logging.info(f"Found track: {track['name']} by {track['artists'][0]['name']} (ID: {track['id']})")
+            return track['id']
+        else:
+            # Try more lenient search without 'track:' prefix
+            results = sp.search(q=f"{song_name} {artist_name}", type="track", limit=5)
+            
+            if results['tracks']['items']:
+                # Try to find the best match
+                for track in results['tracks']['items']:
+                    # Check if artist name is similar
+                    track_artists = [artist['name'].lower() for artist in track['artists']]
+                    if any(artist_name.lower() in artist for artist in track_artists):
+                        logging.info(f"Found close match: {track['name']} by {track['artists'][0]['name']} (ID: {track['id']})")
+                        return track['id']
+            
+            logging.warning(f"Track not found: {song_name} by {artist_name}")
+            return None
+    except Exception as e:
+        logging.error(f"Error searching for track {song_name} by {artist_name}: {str(e)}")
+        return None
+
+def get_existing_playlist_tracks(sp):
+    """Get existing tracks in the playlist with their add dates"""
+    tracks = []
+    results = sp.playlist_items(SPOTIFY_PLAYLIST_ID, fields="items.track.id,items.added_at,next", limit=100)
+    
+    while results:
+        for item in results['items']:
+            if item['track']:
+                tracks.append({
+                    'id': item['track']['id'],
+                    'added_at': item['added_at']
+                })
+        
+        if results['next']:
+            results = sp.next(results)
+        else:
+            break
+    
+    logging.info(f"Retrieved {len(tracks)} existing tracks from playlist")
+    return tracks
+
+def get_tracks_to_remove(existing_tracks):
+    """Identify tracks to remove based on age"""
+    tracks_to_remove = []
+    today = datetime.datetime.now(datetime.timezone.utc)
+    
+    for track in existing_tracks:
+        added_date = datetime.datetime.fromisoformat(track['added_at'].replace('Z', '+00:00'))
+        age_days = (today - added_date).days
+        
+        if age_days > DAYS_TO_KEEP_SONGS:
+            tracks_to_remove.append(track['id'])
+            logging.info(f"Track {track['id']} will be removed (age: {age_days} days)")
+    
+    return tracks_to_remove
+
+def update_playlist(sp, today_songs):
+    """Update the playlist with today's songs and remove old ones"""
+    # Get existing playlist tracks
+    existing_tracks = get_existing_playlist_tracks(sp)
+    existing_track_ids = [track['id'] for track in existing_tracks]
+    
+    # Process today's songs
+    new_track_ids = []
+    for song in today_songs:
+        track_id = search_spotify_track(sp, song['song_name'], song['artist'])
+        
+        if track_id and track_id not in existing_track_ids and track_id not in new_track_ids:
+            new_track_ids.append(track_id)
+        
+        # Add a small delay to avoid hitting API rate limits
+        time.sleep(0.5)
+    
+    # Add new tracks to playlist
+    if new_track_ids:
+        try:
+            sp.playlist_add_items(SPOTIFY_PLAYLIST_ID, new_track_ids)
+            logging.info(f"Added {len(new_track_ids)} new tracks to playlist")
+        except Exception as e:
+            logging.error(f"Failed to add tracks to playlist: {str(e)}")
+    else:
+        logging.info("No new tracks to add to playlist")
+    
+    # Remove old tracks
+    tracks_to_remove = get_tracks_to_remove(existing_tracks)
+    if tracks_to_remove:
+        try:
+            # Spotify API requires removing tracks in batches of 100 or fewer
+            for i in range(0, len(tracks_to_remove), 100):
+                batch = tracks_to_remove[i:i+100]
+                sp.playlist_remove_all_occurrences_of_items(SPOTIFY_PLAYLIST_ID, batch)
+            
+            logging.info(f"Removed {len(tracks_to_remove)} tracks from playlist")
+        except Exception as e:
+            logging.error(f"Failed to remove tracks from playlist: {str(e)}")
+    else:
+        logging.info("No tracks to remove from playlist")
+    
+    # Update playlist description
+    update_playlist_description(sp)
+
+def update_playlist_description(sp):
+    """Update the playlist description with current information"""
+    current_date = datetime.datetime.now().strftime("%B %d, %Y")
+    description = f"Weekly Rotation - Your daily dose of new music. 8 fresh tracks daily predicting the next biggest hits. Updated on {current_date}."
+    
+    try:
+        sp.playlist_change_details(
+            playlist_id=SPOTIFY_PLAYLIST_ID,
+            description=description
+        )
+        logging.info("Updated playlist description")
+    except Exception as e:
+        logging.error(f"Failed to update playlist description: {str(e)}")
+
+def main():
+    try:
+        # Initialize GCP
+        initialize_gcp()
+        
+        # Get Spotify client
+        sp = get_spotify_client()
+        
+        # Fetch songs from GCS
+        all_songs = fetch_songs_from_gcs()
+        
+        # Get today's date
+        today = get_current_date()
+        
+        # Filter for today's songs
+        today_songs = [song for song in all_songs if song.get('selected_date') == today]
+        logging.info(f"Found {len(today_songs)} songs for today ({today})")
+        
+        # Update the playlist
+        update_playlist(sp, today_songs)
+        
+        logging.info("Script completed successfully")
+        
+    except Exception as e:
+        logging.error(f"Script failed: {str(e)}")
+
+if __name__ == "__main__":
+    main()
