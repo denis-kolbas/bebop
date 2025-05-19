@@ -21,6 +21,17 @@ def init_gcp():
       f.write(service_account_json)
   os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
+
+def fix_encoding(text):
+    """Fix double-encoded UTF-8 characters in text"""
+    if not text:
+        return ""
+    
+    try:
+        return text.encode('latin1').decode('utf-8')
+    except (UnicodeError, UnicodeDecodeError):
+        return text
+
 def get_song_views(song_name, artist_name):
   try:
       ytmusic = YTMusic('oauth.json', oauth_credentials=OAuthCredentials(
@@ -155,9 +166,9 @@ def scrape_apple_music():
                   artist_name = audio_data.get('byArtist', [{}])[0].get('name', '')
                   
                   track_info = {
-                      'song_name': song_name,
-                      'album': audio_data.get('inAlbum', {}).get('name', ''),
-                      'artist': artist_name,
+                      'song_name': fix_encoding(song_name),
+                      'album': fix_encoding(audio_data.get('inAlbum', {}).get('name', '')),
+                      'artist': fix_encoding(artist_name),
                       'preview_url': audio_data.get('audio', {}).get('contentUrl', ''),
                       'release_date': audio_data.get('datePublished'),
                       'song_url': song_url,
