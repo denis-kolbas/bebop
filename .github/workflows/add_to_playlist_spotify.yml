@@ -1,10 +1,8 @@
-name: Add Songs to Spotify Playlist
-
+name: Add Songs to Playlist - Spotify 
 on:
   schedule:
     - cron: '0 0 * * *'  # Runs daily at midnight UTC
   workflow_dispatch:
-
 jobs:
   update-playlist:
     runs-on: ubuntu-latest
@@ -27,6 +25,6 @@ jobs:
         SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
         SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
         SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-        GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SA_KEY }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
       run: python add_to_playlist_spotify.py
