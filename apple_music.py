@@ -180,8 +180,6 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
        blob = bucket.blob('selected_songs.json')
        blob.upload_from_string(json.dumps(selected_songs), content_type='application/json')
        
-       # Generate Google Form for the new songs
-       create_google_form(newly_selected, bucket_name)
        
    return newly_selected
 
