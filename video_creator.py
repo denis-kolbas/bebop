@@ -10,6 +10,8 @@ import shutil
 import json
 from google.cloud import storage
 import io
+import gspread
+from google.oauth2 import service_account
 
 # Set environment for headless execution
 os.environ["IMAGEIO_FFMPEG_EXE"] = "ffmpeg"
@@ -450,6 +452,52 @@ def generate_music_preview_video(song_data, index=0):
         # Clean up the temporary directory
         shutil.rmtree(temp_dir)
 
+def fetch_songs_from_spreadsheet(spreadsheet_id):
+    """Fetch songs data from Google Spreadsheet"""
+    try:
+        # Use the same credentials file for both GCS and Sheets
+        credentials = service_account.Credentials.from_service_account_file(
+            'gcp_credentials.json',
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly', 
+                    'https://www.googleapis.com/auth/drive.readonly']
+        )
+        gc = gspread.authorize(credentials)
+        
+        # Open the spreadsheet and get the first sheet
+        spreadsheet = gc.open_by_key(spreadsheet_id)
+        worksheet = spreadsheet.sheet1
+        
+        # Get all values including headers
+        all_values = worksheet.get_all_values()
+        
+        if not all_values:
+            print("Spreadsheet is empty")
+            return []
+        
+        # Extract headers and data
+        headers = all_values[0]
+        data = all_values[1:]
+        
+        # Convert to list of dictionaries
+        songs_data = []
+        for row in data:
+            song = {}
+            for i, header in enumerate(headers):
+                if i < len(row):
+                    # Convert TRUE/FALSE strings to boolean
+                    if header == 'create_video':
+                        song[header] = row[i].upper() == 'TRUE'
+                    else:
+                        song[header] = row[i]
+            songs_data.append(song)
+        
+        print(f"Fetched {len(songs_data)} songs from spreadsheet")
+        return songs_data
+        
+    except Exception as e:
+        print(f"Error fetching songs from spreadsheet: {e}")
+        raise
+
 def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
     """Fetch songs data from Google Cloud Storage"""
     # Initialize GCS client
@@ -470,40 +518,33 @@ def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
     
     return songs_data
 
-def process_latest_songs(service_account_path=None, bucket_name=None, blob_name=None):
-    """Process songs with the latest selected_date"""
+def process_latest_songs(spreadsheet_id=None):
+    """Process songs marked for video creation with today's date"""
     try:
-        # Use environment variables if parameters not provided
-        if bucket_name is None:
-            bucket_name = os.environ.get('GCS_BUCKET_NAME')
-        if blob_name is None:
-            blob_name = 'selected_songs.json'
-            
-        # Fetch songs data from GCS
-        print(f"Fetching songs data from gs://{bucket_name}/{blob_name}")
-        songs_data = fetch_songs_from_gcs(bucket_name, blob_name, service_account_path)
+        if spreadsheet_id is None:
+            # Get spreadsheet ID from environment or use default
+            spreadsheet_id = os.environ.get('SPREADSHEET_ID')
         
-        # Find the latest selected_date
-        latest_date = None
-        for song in songs_data:
-            if 'selected_date' in song:
-                if latest_date is None or song['selected_date'] > latest_date:
-                    latest_date = song['selected_date']
+        # Fetch songs data from spreadsheet
+        print(f"Fetching songs data from spreadsheet ID: {spreadsheet_id}")
+        songs_data = fetch_songs_from_spreadsheet(spreadsheet_id)
         
-        if latest_date is None:
-            print("No songs with 'selected_date' found in the data")
-            return []
+        # Get today's date
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        print(f"Today's date: {today}")
         
-        print(f"Latest selected_date is {latest_date}")
+        # Filter songs with today's date and create_video = True
+        selected_songs = [
+            song for song in songs_data 
+            if song.get('selected_date') == today and song.get('create_video') == True
+        ]
         
-        # Filter songs with the latest selected_date
-        latest_songs = [song for song in songs_data if song.get('selected_date') == latest_date]
-        print(f"Found {len(latest_songs)} songs with the latest selected_date")
+        print(f"Found {len(selected_songs)} songs with today's date and marked for video creation")
         
         # Generate videos for each song
         output_paths = []
-        for i, song in enumerate(latest_songs):
-            print(f"Generating video {i+1}/{len(latest_songs)} for '{song['song_name']}' by {song['artist']}")
+        for i, song in enumerate(selected_songs):
+            print(f"Generating video {i+1}/{len(selected_songs)} for '{song['song_name']}' by {song['artist']}")
             output_path = generate_music_preview_video(song, index=i)
             output_paths.append(output_path)
         
@@ -517,12 +558,11 @@ if __name__ == "__main__":
     # Initialize GCP credentials
     init_gcp()
     
-    # Configuration
-    bucket_name = os.environ.get('GCS_BUCKET_NAME')
-    blob_name = "selected_songs.json"
+    # Configuration - use environment variable for spreadsheet ID
+    spreadsheet_id = os.environ.get('SPREADSHEET_ID')
     
     # Process songs
-    output_paths = process_latest_songs(bucket_name=bucket_name, blob_name=blob_name)
+    output_paths = process_latest_songs(spreadsheet_id=spreadsheet_id)
     
     if output_paths:
         print(f"\nSuccessfully generated {len(output_paths)} videos:")
