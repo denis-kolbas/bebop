@@ -6,3 +6,5 @@ numpy
 decorator
 tqdm
 imageio-ffmpeg
+gspread
+google-auth
