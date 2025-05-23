@@ -554,6 +554,14 @@ def process_latest_songs(spreadsheet_id=None):
         print(f"Error processing songs: {e}")
         raise
 
+def make_videos_public(bucket_name, date):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    
+    for blob in bucket.list_blobs(prefix=f"videos/{date}/individual/"):
+        if blob.name.endswith('.mp4'):
+            blob.make_public()
+
 if __name__ == "__main__":
     # Initialize GCP credentials
     init_gcp()
@@ -566,6 +574,9 @@ if __name__ == "__main__":
     
     if output_paths:
         print(f"\nSuccessfully generated {len(output_paths)} videos:")
+        bucket_name = os.environ.get('GCS_BUCKET_NAME')
+        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        make_videos_public(bucket_name, today)
         for path in output_paths:
             print(f"- {path}")
     else:
