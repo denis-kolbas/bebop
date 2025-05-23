@@ -1,11 +1,7 @@
 name: Test Webhook Trigger
 on:
-  workflow_dispatch:
-    inputs:
-      source:
-        description: "Trigger source"
-        required: false
-        default: "manual"
+  repository_dispatch:
+    types: [appsheet_trigger]
 
 jobs:
   test:
