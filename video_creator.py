@@ -452,7 +452,7 @@ def generate_music_preview_video(song_data, index=0):
         # Clean up the temporary directory
         shutil.rmtree(temp_dir)
 
-def fetch_songs_from_spreadsheet(spreadsheet_id):
+#def fetch_songs_from_spreadsheet(spreadsheet_id):
     """Fetch songs data from Google Spreadsheet"""
     try:
         # Use the same credentials file for both GCS and Sheets
@@ -498,7 +498,7 @@ def fetch_songs_from_spreadsheet(spreadsheet_id):
         print(f"Error fetching songs from spreadsheet: {e}")
         raise
 
-#def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
+def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
     """Fetch songs data from Google Cloud Storage"""
     # Initialize GCS client
     if service_account_path:
