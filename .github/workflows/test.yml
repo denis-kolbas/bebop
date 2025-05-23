@@ -1,0 +1,24 @@
+name: Test Webhook Trigger
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Trigger source"
+        required: false
+        default: "manual"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print trigger info
+        run: |
+          echo "Workflow triggered!"
+          echo "Source: ${{ github.event.inputs.source }}"
+          echo "Timestamp: $(date)"
+
+      - name: Simulate processing
+        run: |
+          echo "Processing songs..."
+          sleep 5
+          echo "Done!"
