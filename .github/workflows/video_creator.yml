@@ -2,7 +2,7 @@ name: Generate Weekly Rotation Videos
 
 on:
   schedule:
-    - cron: "30 7 * * *" # Run daily at 7:30 UTC
+    - cron: "30 5 * * *" # Run daily at 5:30 UTC
   workflow_dispatch: # Allow manual triggering
 
 jobs:
