@@ -22,7 +22,6 @@ def init_gcp():
       f.write(service_account_json)
   os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
-
 def fix_encoding(text):
     """Fix double-encoded UTF-8 characters in text"""
     if not text:
@@ -50,6 +49,13 @@ def get_song_views(song_name, artist_name):
   except Exception as e:
       print(f"YouTube search error: {e}")
       return '0'
+
+def generate_video_url(song, index, bucket_name, date):
+    """Generate deterministic video URL matching video creator naming pattern"""
+    safe_song_name = song['song_name'].replace(" ", "_").replace("/", "_").replace("\\", "_")
+    safe_artist = song['artist'].replace(" ", "_").replace("/", "_").replace("\\", "_")
+    filename = f"{index+1:02d}_{safe_song_name}_{safe_artist}_{date}.mp4"
+    return f"https://storage.googleapis.com/{bucket_name}/videos/{date}/individual/{filename}"
 
 def upload_to_gcs(data, bucket_name):
   storage_client = storage.Client()
@@ -170,9 +176,10 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
    # Select top songs by normalized views
    newly_selected = all_tracks[:min(num_songs, len(all_tracks))]
    
-   # Add create_video field (default false)
-   for track in newly_selected:
+   # Add create_video field and video_url
+   for i, track in enumerate(newly_selected):
        track['create_video'] = False
+       track['video_url'] = generate_video_url(track, i, bucket_name, current_date)
    
    # Add to master list and save
    if newly_selected:
@@ -183,7 +190,7 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
        bucket = storage_client.bucket(bucket_name)
        blob = bucket.blob('selected_songs.json')
        blob.upload_from_string(json.dumps(selected_songs), content_type='application/json')
-       
+       blob.make_public()
        
    return newly_selected
 
