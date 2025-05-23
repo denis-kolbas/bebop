@@ -59,6 +59,9 @@ def upload_to_gcs(data, bucket_name):
   blob.upload_from_string(data, content_type='application/json')
   print(f"Uploaded to {bucket_name}/{filename}")
 
+  blob.make_public()
+  print(f"Uploaded and made public: {bucket_name}/{filename}")
+  
 def get_selected_songs(bucket_name):
    storage_client = storage.Client()
    bucket = storage_client.bucket(bucket_name)
