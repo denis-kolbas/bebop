@@ -498,7 +498,7 @@ def fetch_songs_from_spreadsheet(spreadsheet_id):
         print(f"Error fetching songs from spreadsheet: {e}")
         raise
 
-def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
+#def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
     """Fetch songs data from Google Cloud Storage"""
     # Initialize GCS client
     if service_account_path:
