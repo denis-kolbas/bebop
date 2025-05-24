@@ -198,14 +198,26 @@ def update_playlist(sp, today_songs):
         time.sleep(0.5)
     
     # Add new tracks to playlist
+    # Add new tracks to playlist
     if new_track_ids:
         try:
             sp.playlist_add_items(SPOTIFY_PLAYLIST_ID, new_track_ids)
             logging.info(f"Added {len(new_track_ids)} new tracks to playlist")
+            
+            # Move new tracks to top
+            playlist_info = sp.playlist(SPOTIFY_PLAYLIST_ID, fields="tracks.total")
+            total_tracks = playlist_info['tracks']['total']
+            
+            sp.playlist_reorder_items(
+                SPOTIFY_PLAYLIST_ID,
+                range_start=total_tracks - len(new_track_ids),
+                insert_before=0,
+                range_length=len(new_track_ids)
+            )
+            logging.info(f"Moved {len(new_track_ids)} new tracks to top")
+            
         except Exception as e:
-            logging.error(f"Failed to add tracks to playlist: {str(e)}")
-    else:
-        logging.info("No new tracks to add to playlist")
+            logging.error(f"Failed to add/reorder tracks: {str(e)}")
     
     # Remove old tracks
     tracks_to_remove = get_tracks_to_remove(existing_tracks)
@@ -227,7 +239,7 @@ def update_playlist(sp, today_songs):
 def update_playlist_description(sp):
     """Update the playlist description with current information"""
     current_date = datetime.datetime.now().strftime("%B %d, %Y")
-    description = f"Weekly Rotation - Your daily dose of new music. 8 fresh tracks daily predicting the next biggest hits. Updated on {current_date}."
+    description = f"Your daily discovery of new music. Newest releases added daily, removed after 7 days. Updated on {current_date}."
     
     try:
         sp.playlist_change_details(
