@@ -518,16 +518,14 @@ def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
     
     return songs_data
 
-def process_latest_songs(spreadsheet_id=None):
+def process_latest_songs():
     """Process songs marked for video creation with today's date"""
     try:
-        if spreadsheet_id is None:
-            # Get spreadsheet ID from environment or use default
-            spreadsheet_id = os.environ.get('SPREADSHEET_ID')
+        bucket_name = os.environ.get('GCS_BUCKET_NAME')
         
-        # Fetch songs data from spreadsheet
-        print(f"Fetching songs data from spreadsheet ID: {spreadsheet_id}")
-        songs_data = fetch_songs_from_spreadsheet(spreadsheet_id)
+        # Fetch songs data from GCS
+        print(f"Fetching songs data from GCS bucket: {bucket_name}")
+        songs_data = fetch_songs_from_gcs(bucket_name, 'selected_songs.json')
         
         # Get today's date
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -535,7 +533,7 @@ def process_latest_songs(spreadsheet_id=None):
         
         # Filter songs with today's date and create_video = True
         selected_songs = [
-            song for song in songs_data 
+            song for song in songs_data
             if song.get('selected_date') == today and song.get('create_video') == True
         ]
         
@@ -570,7 +568,7 @@ if __name__ == "__main__":
     spreadsheet_id = os.environ.get('SPREADSHEET_ID')
     
     # Process songs
-    output_paths = process_latest_songs(spreadsheet_id=spreadsheet_id)
+    output_paths = process_latest_songs()
     
     if output_paths:
         print(f"\nSuccessfully generated {len(output_paths)} videos:")
