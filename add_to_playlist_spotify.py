@@ -6,6 +6,8 @@ from google.cloud import storage
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import logging
+import gspread
+from google.oauth2 import service_account
 
 # Configure logging
 logging.basicConfig(
@@ -19,13 +21,12 @@ logging.basicConfig(
 # Spotify API credentials from environment variables
 SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
-SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8888/callback"  # Still needed for setup
+SPOTIFY_REDIRECT_URI = "http://127.0.0.1:8888/callback"
 SPOTIFY_PLAYLIST_ID = "23jlRqLpPrVUPhMuGGtfX9"
 SPOTIFY_REFRESH_TOKEN = os.environ.get("SPOTIFY_REFRESH_TOKEN")
 
-# GCP configuration
-GCS_BUCKET_NAME = "bebop_data"
-GCS_BLOB_NAME = "selected_songs.json"
+# Spreadsheet configuration
+SPREADSHEET_ID = os.environ.get('SPREADSHEET_ID')
 
 # Number of days to keep songs in playlist
 DAYS_TO_KEEP_SONGS = 7
@@ -45,7 +46,6 @@ def get_spotify_client():
     try:
         scope = "playlist-modify-public playlist-read-private playlist-modify-private"
         
-        # Use refresh token instead of OAuth flow for non-interactive auth
         auth_manager = spotipy.oauth2.SpotifyOAuth(
             client_id=SPOTIFY_CLIENT_ID,
             client_secret=SPOTIFY_CLIENT_SECRET,
@@ -54,7 +54,6 @@ def get_spotify_client():
             cache_handler=spotipy.cache_handler.CacheFileHandler(cache_path="/tmp/spotify_cache")
         )
         
-        # Set the refresh token explicitly
         token_info = auth_manager.refresh_access_token(SPOTIFY_REFRESH_TOKEN)
         auth_manager.cache_handler.save_token_to_cache(token_info)
         
@@ -70,34 +69,49 @@ def fix_encoding(text):
     if not text:
         return ""
     
-    # Try to detect and fix double-encoded UTF-8
     try:
-        # This handles cases where UTF-8 was encoded again as UTF-8
         return text.encode('latin1').decode('utf-8')
     except (UnicodeError, UnicodeDecodeError):
-        # If that doesn't work, return the original text
         return text
 
-def fetch_songs_from_gcs():
-    """Fetch songs from Google Cloud Storage"""
+def fetch_songs_from_spreadsheet():
+    """Fetch songs data from Google Spreadsheet"""
     try:
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(GCS_BUCKET_NAME)
-        blob = bucket.blob(GCS_BLOB_NAME)
+        credentials = service_account.Credentials.from_service_account_file(
+            '/tmp/gcp_sa.json',
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly', 
+                    'https://www.googleapis.com/auth/drive.readonly']
+        )
+        gc = gspread.authorize(credentials)
         
-        content = blob.download_as_string()
-        songs_data = json.loads(content)
+        spreadsheet = gc.open_by_key(SPREADSHEET_ID)
+        worksheet = spreadsheet.sheet1
         
-        # Fix text encoding issues
-        for song in songs_data:
-            song['song_name'] = fix_encoding(song['song_name'])
-            song['artist'] = fix_encoding(song['artist'])
-            song['album'] = fix_encoding(song['album'])
+        all_values = worksheet.get_all_values()
         
-        logging.info(f"Successfully fetched {len(songs_data)} songs from GCS")
+        if not all_values:
+            logging.warning("Spreadsheet is empty")
+            return []
+        
+        headers = all_values[0]
+        data = all_values[1:]
+        
+        songs_data = []
+        for row in data:
+            song = {}
+            for i, header in enumerate(headers):
+                if i < len(row):
+                    if header == 'create_video':
+                        song[header] = row[i].upper() == 'TRUE'
+                    else:
+                        song[header] = fix_encoding(row[i])
+            songs_data.append(song)
+        
+        logging.info(f"Successfully fetched {len(songs_data)} songs from spreadsheet")
         return songs_data
+        
     except Exception as e:
-        logging.error(f"Failed to fetch songs from GCS: {str(e)}")
+        logging.error(f"Failed to fetch songs from spreadsheet: {str(e)}")
         raise
 
 def get_current_date():
@@ -115,13 +129,11 @@ def search_spotify_track(sp, song_name, artist_name):
             logging.info(f"Found track: {track['name']} by {track['artists'][0]['name']} (ID: {track['id']})")
             return track['id']
         else:
-            # Try more lenient search without 'track:' prefix
+            # Try more lenient search
             results = sp.search(q=f"{song_name} {artist_name}", type="track", limit=5)
             
             if results['tracks']['items']:
-                # Try to find the best match
                 for track in results['tracks']['items']:
-                    # Check if artist name is similar
                     track_artists = [artist['name'].lower() for artist in track['artists']]
                     if any(artist_name.lower() in artist for artist in track_artists):
                         logging.info(f"Found close match: {track['name']} by {track['artists'][0]['name']} (ID: {track['id']})")
@@ -183,7 +195,6 @@ def update_playlist(sp, today_songs):
         if track_id and track_id not in existing_track_ids and track_id not in new_track_ids:
             new_track_ids.append(track_id)
         
-        # Add a small delay to avoid hitting API rate limits
         time.sleep(0.5)
     
     # Add new tracks to playlist
@@ -200,7 +211,6 @@ def update_playlist(sp, today_songs):
     tracks_to_remove = get_tracks_to_remove(existing_tracks)
     if tracks_to_remove:
         try:
-            # Spotify API requires removing tracks in batches of 100 or fewer
             for i in range(0, len(tracks_to_remove), 100):
                 batch = tracks_to_remove[i:i+100]
                 sp.playlist_remove_all_occurrences_of_items(SPOTIFY_PLAYLIST_ID, batch)
@@ -236,15 +246,18 @@ def main():
         # Get Spotify client
         sp = get_spotify_client()
         
-        # Fetch songs from GCS
-        all_songs = fetch_songs_from_gcs()
+        # Fetch songs from spreadsheet
+        all_songs = fetch_songs_from_spreadsheet()
         
         # Get today's date
         today = get_current_date()
         
-        # Filter for today's songs
-        today_songs = [song for song in all_songs if song.get('selected_date') == today]
-        logging.info(f"Found {len(today_songs)} songs for today ({today})")
+        # Filter for today's songs where create_video = True
+        today_songs = [
+            song for song in all_songs 
+            if song.get('selected_date') == today and song.get('create_video') == True
+        ]
+        logging.info(f"Found {len(today_songs)} songs for today ({today}) with create_video=True")
         
         # Update the playlist
         update_playlist(sp, today_songs)
