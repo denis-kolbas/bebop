@@ -534,10 +534,10 @@ def process_latest_songs():
         # Filter songs with today's date and create_video = True
         selected_songs = [
             song for song in songs_data
-            if song.get('selected_date') == today and song.get('create_video') == True
+            if song.get('selected_date') == today
         ]
         
-        print(f"Found {len(selected_songs)} songs with today's date and marked for video creation")
+        print(f"Found {len(selected_songs)} songs with today's date")
         
         # Generate videos for each song
         output_paths = []
@@ -569,7 +569,7 @@ if __name__ == "__main__":
     
     # Process songs
     output_paths = process_latest_songs()
-    
+
     if output_paths:
         print(f"\nSuccessfully generated {len(output_paths)} videos:")
         bucket_name = os.environ.get('GCS_BUCKET_NAME')
