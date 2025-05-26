@@ -8,3 +8,4 @@ tqdm
 imageio-ffmpeg
 gspread
 google-auth
+spotipy

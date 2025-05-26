@@ -79,7 +79,7 @@ def get_stitched_video_url():
 def create_caption(songs):
     """Create caption for the reel"""
     if not songs:
-        return "🎵 New music compilation! #newmusic #music #playlist #trending"
+        return "Top new releases: #newmusic #music #playlist #trending"
     
     caption = "Top new releases:\n\n"
     for i, song in enumerate(songs, 1):

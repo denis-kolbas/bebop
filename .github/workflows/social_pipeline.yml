@@ -4,6 +4,23 @@ on:
     types: [appsheet_trigger]
 
 jobs:
+  update-spotify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+      - run: python add_to_playlist_spotify.py
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+
   stitch-videos:
     runs-on: ubuntu-latest
     steps:
