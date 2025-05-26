@@ -1,0 +1,36 @@
+name: Video Posting Pipeline
+on:
+  repository_dispatch:
+    types: [appsheet_trigger]
+
+jobs:
+  stitch-videos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+      - run: python video_stitcher.py
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+
+  post-instagram:
+    runs-on: ubuntu-latest
+    needs: stitch-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+      - run: python instagram_poster.py
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_ACCOUNT_ID: ${{ secrets.INSTAGRAM_ACCOUNT_ID }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
