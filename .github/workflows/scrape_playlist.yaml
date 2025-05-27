@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install google-cloud-storage requests beautifulsoup4 ytmusicapi
+          pip install google-cloud-storage requests beautifulsoup4 ytmusicapi gspread
 
       - name: Create OAuth file from secret
         run: echo '${{ secrets.YOUTUBE_OAUTH_JSON }}' > oauth.json
