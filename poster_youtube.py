@@ -4,49 +4,63 @@ import gspread
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 import requests
 import tempfile
+import json
 
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/youtube']
-CLIENT_SECRETS_FILE = "/Users/denisk/Desktop/Projects/Bebop/random/client_secret_YOUR_CLIENT_ID_HERE.json"
-SPREADSHEET_ID = "1_SwKCdCIqFlaA2g4aG7pfeXSZpm2if93gCkexpoZOzY"
-GCS_BUCKET_NAME = "bebop_data"
+SPREADSHEET_ID = os.environ.get('SPREADSHEET_ID')
+GCS_BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME')
 
 def init_gcp():
-    credentials_path = "/Users/denisk/Desktop/Larq/Bebop/larq-453712-1e4c65ef0e64.json"
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+    """Initialize GCP credentials"""
+    service_account_json = os.environ.get('GCP_SA_KEY')
+    with open('gcp_credentials.json', 'w') as f:
+        f.write(service_account_json)
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
 def authenticate_youtube():
-    """Authenticate and return YouTube API service"""
-    creds = None
-    
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                CLIENT_SECRETS_FILE, SCOPES)
-            creds = flow.run_local_server(port=0)
+    """Authenticate and return YouTube API service using refresh token"""
+    try:
+        # Get refresh token from environment
+        refresh_token = os.environ.get('YOUTUBE_REFRESH_TOKEN')
+        client_id = os.environ.get('YOUTUBE_CLIENT_ID') 
+        client_secret = os.environ.get('YOUTUBE_CLIENT_SECRET')
         
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    
-    youtube = build('youtube', 'v3', credentials=creds)
-    return youtube
+        if not all([refresh_token, client_id, client_secret]):
+            raise ValueError("Missing YouTube OAuth credentials")
+        
+        # Create credentials from refresh token
+        creds = Credentials(
+            token=None,
+            refresh_token=refresh_token,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=client_id,
+            client_secret=client_secret,
+            scopes=SCOPES
+        )
+        
+        # Refresh the access token
+        creds.refresh(Request())
+        
+        # Build YouTube service
+        youtube = build('youtube', 'v3', credentials=creds)
+        print("✅ YouTube authentication successful")
+        return youtube
+        
+    except Exception as e:
+        print(f"❌ YouTube authentication failed: {e}")
+        raise
 
 def fetch_songs_from_spreadsheet():
     """Fetch songs from Google Spreadsheet"""
     try:
         init_gcp()
         credentials = service_account.Credentials.from_service_account_file(
-            '/Users/denisk/Desktop/Larq/Bebop/larq-453712-1e4c65ef0e64.json',
+            'gcp_credentials.json',
             scopes=['https://www.googleapis.com/auth/spreadsheets.readonly', 
                     'https://www.googleapis.com/auth/drive.readonly']
         )
