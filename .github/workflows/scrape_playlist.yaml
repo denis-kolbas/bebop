@@ -33,6 +33,4 @@ jobs:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
         run: python apple_music.py

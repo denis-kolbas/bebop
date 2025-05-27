@@ -15,8 +15,8 @@ import gspread
 from google.oauth2 import service_account
 
 # OAuth credentials
-CLIENT_ID = os.environ.get("YT_CLIENT_ID")
-CLIENT_SECRET = os.environ.get("YT_CLIENT_SECRET")
+CLIENT_ID = "YOUR_CLIENT_ID_HERE"
+CLIENT_SECRET = "YOUR_CLIENT_SECRET_HERE" 
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 
 def init_gcp():
