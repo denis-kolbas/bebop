@@ -9,4 +9,4 @@ imageio-ffmpeg
 gspread
 google-auth
 spotipy
-googleapiclient
+google-api-python-client
