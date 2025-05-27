@@ -44,7 +44,7 @@ jobs:
         with:
           python-version: "3.10"
       - run: pip install -r requirements.txt
-      - run: python instagram_poster.py
+      - run: python poster_instagram.py
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}

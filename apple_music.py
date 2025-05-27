@@ -11,10 +11,13 @@ from ytmusicapi import YTMusic, OAuthCredentials
 import base64
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
+import gspread
+from google.oauth2 import service_account
 
 # OAuth credentials
-CLIENT_ID = "YOUR_CLIENT_ID_HERE"
-CLIENT_SECRET = "YOUR_CLIENT_SECRET_HERE"  # Replace with your actual client secret
+CLIENT_ID = os.environ.get("YT_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("YT_CLIENT_SECRET")
+SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 
 def init_gcp():
   service_account_json = os.environ.get('GCP_SA_KEY')
@@ -31,6 +34,48 @@ def fix_encoding(text):
         return text.encode('latin1').decode('utf-8')
     except (UnicodeError, UnicodeDecodeError):
         return text
+
+def get_sheet_songs_with_create_video():
+    """Get songs from spreadsheet that have create_video = TRUE"""
+    try:
+        credentials = service_account.Credentials.from_service_account_file(
+            'gcp_credentials.json',
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly', 
+                    'https://www.googleapis.com/auth/drive.readonly']
+        )
+        gc = gspread.authorize(credentials)
+        
+        spreadsheet = gc.open_by_key(SPREADSHEET_ID)
+        worksheet = spreadsheet.sheet1
+        
+        all_values = worksheet.get_all_values()
+        if not all_values:
+            return set()
+        
+        headers = all_values[0]
+        data = all_values[1:]
+        
+        # Find song_url and create_video column indices
+        song_url_col = headers.index('song_url') if 'song_url' in headers else None
+        create_video_col = headers.index('create_video') if 'create_video' in headers else None
+        
+        if song_url_col is None or create_video_col is None:
+            print("Warning: song_url or create_video column not found in spreadsheet")
+            return set()
+        
+        # Get song URLs where create_video = TRUE
+        selected_song_urls = set()
+        for row in data:
+            if (len(row) > max(song_url_col, create_video_col) and 
+                row[create_video_col].upper() == 'TRUE'):
+                selected_song_urls.add(row[song_url_col])
+        
+        print(f"Found {len(selected_song_urls)} songs with create_video=TRUE in spreadsheet")
+        return selected_song_urls
+        
+    except Exception as e:
+        print(f"Error fetching songs from spreadsheet: {e}")
+        return set()
 
 def get_song_views(song_name, artist_name):
   try:
@@ -81,15 +126,23 @@ def get_selected_songs(bucket_name):
    return selected_songs
 
 def select_new_songs(tracks, bucket_name, num_songs=20):
-   # Get previously selected songs
+   # Get songs from spreadsheet that have create_video = TRUE
+   sheet_selected_urls = get_sheet_songs_with_create_video()
+   
+   # Get previously selected songs from JSON
    selected_songs = get_selected_songs(bucket_name)
    
-   # Identify songs already processed or tagged for video
+   # Identify songs already processed or tagged for video (from both sources)
    selected_song_ids = set()
    for song in selected_songs:
-       # Skip songs already tagged for video creation
-     if song.get('create_video', False):
-       selected_song_ids.add(song['song_url'])
+       # Skip songs already tagged for video creation in JSON
+       if song.get('create_video', False):
+           selected_song_ids.add(song['song_url'])
+   
+   # Add songs from spreadsheet
+   selected_song_ids.update(sheet_selected_urls)
+   
+   print(f"Total songs to exclude: {len(selected_song_ids)} (JSON: {len([s for s in selected_songs if s.get('create_video', False)])}, Sheet: {len(sheet_selected_urls)})")
    
    # Filter out previously selected songs
    new_tracks = [track for track in tracks if track['song_url'] not in selected_song_ids]
