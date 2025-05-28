@@ -185,18 +185,27 @@ def generate_music_preview_video(song_data, index=0):
         width, height = 1080, 1920
         clip_duration = 15
         
-        # Download and prepare audio
-        audio_url = song_data['preview_url']
-        audio_response = requests.get(audio_url)
-        audio_path = os.path.join(temp_dir, 'preview_audio.m4a')
-        with open(audio_path, 'wb') as f:
-            f.write(audio_response.content)
-        
-        # Load audio and trim to 15 seconds
-        audio_clip = AudioFileClip(audio_path).subclip(0, clip_duration)
-        
-        # Add fade in/out for smooth transitions
-        audio_clip = audio_clip.audio_fadein(1.0).audio_fadeout(1.0)
+        # Download and prepare audio (if available)
+        audio_clip = None
+        audio_url = song_data.get('preview_url')
+        if audio_url and audio_url.strip():
+            try:
+                audio_response = requests.get(audio_url)
+                audio_path = os.path.join(temp_dir, 'preview_audio.m4a')
+                with open(audio_path, 'wb') as f:
+                    f.write(audio_response.content)
+                
+                # Load audio and trim to 15 seconds
+                audio_clip = AudioFileClip(audio_path).subclip(0, clip_duration)
+                
+                # Add fade in/out for smooth transitions
+                audio_clip = audio_clip.audio_fadein(1.0).audio_fadeout(1.0)
+                print(f"Audio loaded for {song_data['song_name']}")
+            except Exception as e:
+                print(f"Failed to load audio for {song_data['song_name']}: {e}")
+                audio_clip = None
+        else:
+            print(f"No preview URL for {song_data['song_name']}, creating video without audio")
         
         # Create gradient with highlight effect
         base_color = hex_to_rgb(song_data['artwork_bg_color'])
@@ -415,8 +424,11 @@ def generate_music_preview_video(song_data, index=0):
             preview_text.set_position(preview_text_pos)
         ]).set_duration(clip_duration)
         
-        # Set audio to the final clip
-        final_clip = final_clip.set_audio(audio_clip)
+        # Set audio to the final clip (if available)
+        if audio_clip:
+            final_clip = final_clip.set_audio(audio_clip)
+        else:
+            print(f"Creating silent video for {song_data['song_name']}")
         
         # Create output directory if it doesn't exist
         today = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -452,10 +464,9 @@ def generate_music_preview_video(song_data, index=0):
         # Clean up the temporary directory
         shutil.rmtree(temp_dir)
 
-#def fetch_songs_from_spreadsheet(spreadsheet_id):
+def fetch_songs_from_spreadsheet(spreadsheet_id):
     """Fetch songs data from Google Spreadsheet"""
     try:
-        # Use the same credentials file for both GCS and Sheets
         credentials = service_account.Credentials.from_service_account_file(
             'gcp_credentials.json',
             scopes=['https://www.googleapis.com/auth/spreadsheets.readonly', 
@@ -463,28 +474,23 @@ def generate_music_preview_video(song_data, index=0):
         )
         gc = gspread.authorize(credentials)
         
-        # Open the spreadsheet and get the first sheet
         spreadsheet = gc.open_by_key(spreadsheet_id)
         worksheet = spreadsheet.sheet1
         
-        # Get all values including headers
         all_values = worksheet.get_all_values()
         
         if not all_values:
             print("Spreadsheet is empty")
             return []
         
-        # Extract headers and data
         headers = all_values[0]
         data = all_values[1:]
         
-        # Convert to list of dictionaries
         songs_data = []
         for row in data:
             song = {}
             for i, header in enumerate(headers):
                 if i < len(row):
-                    # Convert TRUE/FALSE strings to boolean
                     if header == 'create_video':
                         song[header] = row[i].upper() == 'TRUE'
                     else:
@@ -498,84 +504,45 @@ def generate_music_preview_video(song_data, index=0):
         print(f"Error fetching songs from spreadsheet: {e}")
         raise
 
-def fetch_songs_from_gcs(bucket_name, blob_name, service_account_path=None):
-    """Fetch songs data from Google Cloud Storage"""
-    # Initialize GCS client
-    if service_account_path:
-        storage_client = storage.Client.from_service_account_json(service_account_path)
-    else:
-        storage_client = storage.Client()
-    
-    # Get bucket and blob
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    
-    # Download blob as string
-    content = blob.download_as_string()
-    
-    # Parse JSON
-    songs_data = json.loads(content)
-    
-    return songs_data
-
-def process_latest_songs():
+def process_videos():
     """Process songs marked for video creation with today's date"""
-    try:
-        bucket_name = os.environ.get('GCS_BUCKET_NAME')
-        
-        # Fetch songs data from GCS
-        print(f"Fetching songs data from GCS bucket: {bucket_name}")
-        songs_data = fetch_songs_from_gcs(bucket_name, 'selected_songs.json')
-        
-        # Get today's date
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        print(f"Today's date: {today}")
-        
-        # Filter songs with today's date and create_video = True
-        selected_songs = [
-            song for song in songs_data
-            if song.get('selected_date') == today
-        ]
-        
-        print(f"Found {len(selected_songs)} songs with today's date")
-        
-        # Generate videos for each song
-        output_paths = []
-        for i, song in enumerate(selected_songs):
-            print(f"Generating video {i+1}/{len(selected_songs)} for '{song['song_name']}' by {song['artist']}")
-            output_path = generate_music_preview_video(song, index=i)
-            output_paths.append(output_path)
-        
-        return output_paths
-        
-    except Exception as e:
-        print(f"Error processing songs: {e}")
-        raise
-
-def make_videos_public(bucket_name, date):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    
-    for blob in bucket.list_blobs(prefix=f"videos/{date}/individual/"):
-        if blob.name.endswith('.mp4'):
-            blob.make_public()
-
-if __name__ == "__main__":
-    # Initialize GCP credentials
     init_gcp()
     
-    # Configuration - use environment variable for spreadsheet ID
     spreadsheet_id = os.environ.get('SPREADSHEET_ID')
+    if not spreadsheet_id:
+        raise ValueError("SPREADSHEET_ID environment variable not set")
     
-    # Process songs
-    output_paths = process_latest_songs()
+    # Fetch songs from spreadsheet
+    songs_data = fetch_songs_from_spreadsheet(spreadsheet_id)
+    
+    # Get today's date
+    today = datetime.datetime.now().strftime("%Y-%m-%d")
+    
+    # Filter songs: today's date AND create_video = True
+    selected_songs = [
+        song for song in songs_data 
+        if song.get('selected_date') == today and song.get('create_video') == True
+    ]
+    
+    print(f"Found {len(selected_songs)} songs for video creation today")
+    
+    if not selected_songs:
+        print("No songs to process today")
+        return []
+    
+    # Generate videos
+    output_paths = []
+    for i, song in enumerate(selected_songs):
+        try:
+            print(f"Processing {i+1}/{len(selected_songs)}: {song['song_name']} - {song['artist']}")
+            output_path = generate_music_preview_video(song, index=i)
+            output_paths.append(output_path)
+        except Exception as e:
+            print(f"Error processing {song['song_name']}: {e}")
+            continue
+    
+    print(f"Successfully generated {len(output_paths)} videos")
+    return output_paths
 
-    if output_paths:
-        print(f"\nSuccessfully generated {len(output_paths)} videos:")
-        bucket_name = os.environ.get('GCS_BUCKET_NAME')
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        make_videos_public(bucket_name, today)
-        for path in output_paths:
-            print(f"- {path}")
-    else:
-        print("No videos were generated")
+if __name__ == "__main__":
+    process_videos()
