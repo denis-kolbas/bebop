@@ -243,7 +243,7 @@ def main():
     
     # Test 3: Only try video if text post works
     # Hardcoded video URL for testing
-    test_video_url = "https://storage.googleapis.com/your-bucket/test-video.mp4"
+    test_video_url = "https://storage.googleapis.com/bebop_data/videos/2025-05-28/stitched/stitched_reel_2025-05-28.mp4"
     
     # Test caption
     caption = "🎵 Daily Music Discovery Test\n\n1. Test Artist - Test Song\n\n#NewMusic #MusicDiscovery #DailyPicks"
