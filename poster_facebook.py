@@ -42,7 +42,7 @@ print(f"Video ID: {video_id}")
 # Step 2: Upload video from URL
 print("Step 2: Uploading video...")
 response = requests.post(
-    f"https://rupload.facebook.com/video-upload/v18.0/{video_id}",
+    f"https://rupload.facebook.com/video-upload/v13.0/{video_id}",
     headers={
         "Authorization": f"OAuth {FACEBOOK_ACCESS_TOKEN}",
         "file_url": VIDEO_URL
@@ -66,12 +66,15 @@ for i in range(60):  # Try for 5 minutes
         }
     )
     
-    status = response.json()['status']['video_status']
-    print(f"Status: {status}")
+    status_data = response.json().get('status', {})
+    video_status = status_data.get('video_status', '')
+    processing_status = status_data.get('processing_phase', {}).get('status', '')
     
-    if status == 'ready':
+    print(f"Status: {video_status}, Processing: {processing_status}")
+    
+    if video_status == 'ready' or processing_status == 'complete':
         break
-    elif status == 'error':
+    elif video_status == 'error':
         print(f"Processing error: {response.json()}")
         exit(1)
     
@@ -80,13 +83,13 @@ for i in range(60):  # Try for 5 minutes
 # Step 4: Publish the reel
 print("Step 4: Publishing reel...")
 response = requests.post(
-    f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels",
+    f"https://graph.facebook.com/v13.0/me/video_reels",
     params={
         "access_token": FACEBOOK_ACCESS_TOKEN,
         "video_id": video_id,
         "upload_phase": "finish",
         "video_state": "PUBLISHED",
-        "description": "2 - Today's Music Discoveries! 🎵 #NewMusic #MusicDiscovery"
+        "description": "Today's Music Discoveries! 🎵 #NewMusic #MusicDiscovery"
     }
 )
 
