@@ -104,13 +104,15 @@ def download_video_from_url(video_url):
 
 def initialize_upload_session(page_id, access_token):
     """Step 1: Initialize upload session"""
-    url = f"https://graph.facebook.com/v23.0/{page_id}/video_reels"
+    url = f"https://graph.facebook.com/v18.0/{page_id}/video_reels"
     data = {
         "upload_phase": "start",
         "access_token": access_token
     }
     
     response = requests.post(url, json=data)
+    if response.status_code != 200:
+        print(f"Error response: {response.text}")
     response.raise_for_status()
     return response.json()
 
@@ -181,6 +183,10 @@ def publish_reel(page_id, video_id, description, access_token):
 def main():
     """Main function to post reel to Facebook"""
     try:
+        # Debug: Check credentials
+        if not FACEBOOK_PAGE_ID or not FACEBOOK_ACCESS_TOKEN:
+            print(f"Missing credentials - Page ID: {FACEBOOK_PAGE_ID}, Token: {'Set' if FACEBOOK_ACCESS_TOKEN else 'Missing'}")
+            return
         # Get today's songs for caption
         songs = get_today_songs()
         if not songs:
