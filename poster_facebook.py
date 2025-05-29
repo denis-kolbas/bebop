@@ -6,7 +6,7 @@ from datetime import datetime
 from google.cloud import storage
 from google.oauth2 import service_account
 import gspread
-from gspread_dataframe import get_as_dataframe
+import pandas as pd
 
 # Configuration
 FACEBOOK_ACCESS_TOKEN = os.environ.get('FACEBOOK_ACCESS_TOKEN')
@@ -30,9 +30,13 @@ sheet = gc.open_by_key(SPREADSHEET_ID).sheet1
 
 def get_todays_songs():
     """Fetch today's songs from Google Sheets"""
-    df = get_as_dataframe(sheet, parse_dates=True, date_parser=lambda x: datetime.strptime(x, '%Y-%m-%d').date() if x else None)
+    data = sheet.get_all_records()
+    df = pd.DataFrame(data)
     
-    today = datetime.now().date()
+    # Convert selected_date to datetime
+    df['selected_date'] = pd.to_datetime(df['selected_date'], format='%Y-%m-%d', errors='coerce')
+    
+    today = pd.Timestamp.now().normalize()
     todays_songs = df[(df['selected_date'] == today) & (df['create_video'] == True)]
     
     return todays_songs.to_dict('records')
