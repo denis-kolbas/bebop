@@ -125,6 +125,8 @@ def post_to_facebook_reel(video_url, caption):
         }
         
         response = requests.post(url, data=payload)
+        print(f"Reel response status: {response.status_code}")
+        print(f"Reel response: {response.text}")
         response.raise_for_status()
         
         video_id = response.json().get('video_id')
@@ -179,6 +181,7 @@ def post_to_facebook_feed(video_url, caption):
         
         # Download video content
         video_response = requests.get(video_url)
+        print(f"Video download status: {video_response.status_code}")
         video_response.raise_for_status()
         
         # Upload video
@@ -192,6 +195,8 @@ def post_to_facebook_feed(video_url, caption):
         }
         
         response = requests.post(url, files=files, data=data)
+        print(f"Feed response status: {response.status_code}")
+        print(f"Feed response: {response.text}")
         response.raise_for_status()
         
         result = response.json()
@@ -205,20 +210,46 @@ def post_to_facebook_feed(video_url, caption):
         return False
 
 def main():
+    # First, let's test if we have the right token type
+    print("Testing token and getting page info...")
+    
+    # Test 1: Get page info
+    try:
+        url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}"
+        params = {'access_token': FACEBOOK_ACCESS_TOKEN}
+        response = requests.get(url, params=params)
+        print(f"Page info status: {response.status_code}")
+        print(f"Page info: {response.text}")
+    except Exception as e:
+        print(f"Page info error: {e}")
+    
+    # Test 2: Try simple text post first
+    print("\nTesting simple text post...")
+    try:
+        url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/feed"
+        data = {
+            'message': '🎵 Test post from API - Daily Music Discovery',
+            'access_token': FACEBOOK_ACCESS_TOKEN
+        }
+        response = requests.post(url, data=data)
+        print(f"Text post status: {response.status_code}")
+        print(f"Text post response: {response.text}")
+        
+        if response.status_code == 200:
+            print("✅ Text posting works! Token is valid.")
+        
+    except Exception as e:
+        print(f"Text post error: {e}")
+    
+    # Test 3: Only try video if text post works
     # Hardcoded video URL for testing
-    test_video_url = "https://storage.googleapis.com/bebop_data/videos/2025-05-28/stitched/stitched_reel_2025-05-28.mp4"
+    test_video_url = "https://storage.googleapis.com/your-bucket/test-video.mp4"
     
     # Test caption
     caption = "🎵 Daily Music Discovery Test\n\n1. Test Artist - Test Song\n\n#NewMusic #MusicDiscovery #DailyPicks"
-    print(f"Caption: {caption}")
     
-    # Try posting Facebook Reel first
-    print("Posting to Facebook Reels...")
-    reel_success = post_to_facebook_reel(test_video_url, caption)
-    
-    if not reel_success:
-        print("Reel failed, trying regular post...")
-        post_to_facebook_feed(test_video_url, caption)
+    print("\nTrying video post...")
+    post_to_facebook_feed(test_video_url, caption)
 
 if __name__ == "__main__":
     main()
