@@ -31,8 +31,10 @@ print(f"Video ID: {video_id}")
 print("Step 2: Uploading video...")
 response = requests.post(
     f"https://rupload.facebook.com/video-upload/v18.0/{video_id}",
-    headers={"Authorization": f"OAuth {FACEBOOK_ACCESS_TOKEN}"},
-    data={"file_url": VIDEO_URL}
+    headers={
+        "Authorization": f"OAuth {FACEBOOK_ACCESS_TOKEN}",
+        "file_url": VIDEO_URL
+    }
 )
 
 if response.status_code != 200:
