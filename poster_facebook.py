@@ -1,255 +1,185 @@
 import os
-import requests
-import datetime
-import gspread
-from google.oauth2 import service_account
-from google.cloud import storage
 import json
+import requests
+import time
+from datetime import datetime
+from google.cloud import storage
+from google.oauth2 import service_account
+import gspread
+from gspread_dataframe import get_as_dataframe
 
 # Configuration
-FACEBOOK_ACCESS_TOKEN = os.environ.get("FACEBOOK_ACCESS_TOKEN")
-FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID")
-SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
-GCS_BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME")
+FACEBOOK_ACCESS_TOKEN = os.environ.get('FACEBOOK_ACCESS_TOKEN')
+FACEBOOK_PAGE_ID = os.environ.get('FACEBOOK_PAGE_ID')
+GCP_SA_KEY = json.loads(os.environ.get('GCP_SA_KEY'))
+GCS_BUCKET_NAME = "bebop_data"
+SPREADSHEET_ID = os.environ.get('SPREADSHEET_ID')
 
-def init_gcp():
-    service_account_json = os.environ.get('GCP_SA_KEY')
-    with open('gcp_credentials.json', 'w') as f:
-        f.write(service_account_json)
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
+# Initialize Google Cloud Storage
+storage_credentials = service_account.Credentials.from_service_account_info(GCP_SA_KEY)
+storage_client = storage.Client(credentials=storage_credentials)
+bucket = storage_client.bucket(GCS_BUCKET_NAME)
 
-def fetch_songs_from_spreadsheet():
-    """Fetch songs from Google Spreadsheet"""
-    try:
-        init_gcp()
-        credentials = service_account.Credentials.from_service_account_file(
-            'gcp_credentials.json',
-            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly',
-                    'https://www.googleapis.com/auth/drive.readonly']
-        )
-        gc = gspread.authorize(credentials)
-        
-        spreadsheet = gc.open_by_key(SPREADSHEET_ID)
-        worksheet = spreadsheet.sheet1
-        
-        all_values = worksheet.get_all_values()
-        
-        if not all_values:
-            return []
-        
-        headers = all_values[0]
-        data = all_values[1:]
-        
-        songs_data = []
-        for row in data:
-            song = {}
-            for i, header in enumerate(headers):
-                if i < len(row):
-                    if header == 'create_video':
-                        song[header] = row[i].upper() == 'TRUE'
-                    else:
-                        song[header] = row[i]
-            songs_data.append(song)
-        
-        return songs_data
-        
-    except Exception as e:
-        print(f"Error fetching songs: {e}")
-        return []
+# Initialize Google Sheets
+sheets_credentials = service_account.Credentials.from_service_account_info(
+    GCP_SA_KEY,
+    scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+)
+gc = gspread.authorize(sheets_credentials)
+sheet = gc.open_by_key(SPREADSHEET_ID).sheet1
 
-def get_today_songs():
-    """Get today's songs with create_video = TRUE"""
-    songs = fetch_songs_from_spreadsheet()
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
+def get_todays_songs():
+    """Fetch today's songs from Google Sheets"""
+    df = get_as_dataframe(sheet, parse_dates=True, date_parser=lambda x: datetime.strptime(x, '%Y-%m-%d').date() if x else None)
     
-    today_songs = [
-        song for song in songs 
-        if song.get('selected_date') == today and song.get('create_video') == True
-    ]
+    today = datetime.now().date()
+    todays_songs = df[(df['selected_date'] == today) & (df['create_video'] == True)]
     
-    print(f"Found {len(today_songs)} songs for today")
-    return today_songs
+    return todays_songs.to_dict('records')
 
-def create_song_list_caption(songs):
-    """Create caption with song list"""
-    today = datetime.datetime.now().strftime("%B %d, %Y")
-    caption = f"🎵 Daily Music Discovery - {today}\n\n"
+def download_video_from_gcs(video_path):
+    """Download video from GCS to local temp file"""
+    temp_file = f"/tmp/temp_video_{int(time.time())}.mp4"
+    blob = bucket.blob(video_path)
+    blob.download_to_filename(temp_file)
+    return temp_file
+
+def initialize_upload_session(page_id, access_token):
+    """Step 1: Initialize upload session"""
+    url = f"https://graph.facebook.com/v23.0/{page_id}/video_reels"
+    data = {
+        "upload_phase": "start",
+        "access_token": access_token
+    }
+    
+    response = requests.post(url, json=data)
+    response.raise_for_status()
+    return response.json()
+
+def upload_video_file(video_id, file_path, access_token):
+    """Step 2: Upload video file"""
+    url = f"https://rupload.facebook.com/video-upload/v23.0/{video_id}"
+    
+    file_size = os.path.getsize(file_path)
+    
+    headers = {
+        "Authorization": f"OAuth {access_token}",
+        "offset": "0",
+        "file_size": str(file_size)
+    }
+    
+    with open(file_path, 'rb') as f:
+        response = requests.post(url, headers=headers, data=f)
+    
+    response.raise_for_status()
+    return response.json()
+
+def check_upload_status(video_id, access_token):
+    """Check video upload and processing status"""
+    url = f"https://graph.facebook.com/v23.0/{video_id}"
+    params = {
+        "fields": "status",
+        "access_token": access_token
+    }
+    
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    return response.json()
+
+def wait_for_processing(video_id, access_token, max_wait=300):
+    """Wait for video to finish processing"""
+    start_time = time.time()
+    
+    while time.time() - start_time < max_wait:
+        status = check_upload_status(video_id, access_token)
+        video_status = status.get("status", {}).get("video_status", "")
+        
+        if video_status == "ready":
+            return True
+        elif video_status == "error":
+            error = status.get("status", {}).get("processing_phase", {}).get("error", {})
+            raise Exception(f"Video processing error: {error.get('message', 'Unknown error')}")
+        
+        print(f"Video status: {video_status}. Waiting...")
+        time.sleep(5)
+    
+    return False
+
+def publish_reel(page_id, video_id, description, access_token):
+    """Step 3: Publish the reel"""
+    url = f"https://graph.facebook.com/v23.0/{page_id}/video_reels"
+    params = {
+        "access_token": access_token,
+        "video_id": video_id,
+        "upload_phase": "finish",
+        "video_state": "PUBLISHED",
+        "description": description
+    }
+    
+    response = requests.post(url, params=params)
+    response.raise_for_status()
+    return response.json()
+
+def create_reel_description(songs):
+    """Create description with song list"""
+    description = "🎵 Today's Music Discoveries! 🎵\n\n"
     
     for i, song in enumerate(songs, 1):
-        artist = song.get('artist', 'Unknown Artist')
-        title = song.get('title', 'Unknown Title')
-        caption += f"{i}. {artist} - {title}\n"
+        description += f"{i}. {song['artist']} - {song['title']}\n"
     
-    caption += "\n#NewMusic #MusicDiscovery #DailyPicks"
-    return caption
+    description += "\n#NewMusic #MusicDiscovery #DailyMusic"
+    return description
 
-def get_video_url_from_gcs(version="90s"):
-    """Get video URL from GCS"""
+def post_facebook_reel(video_url=None):
+    """Main function to post reel to Facebook"""
     try:
-        init_gcp()
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
-        
-        # Choose video version - 90s is good for Facebook Reels
-        if version == "60s":
-            filename = f"stitched_reel_60s_{today}.mp4"
-        elif version == "90s":
-            filename = f"stitched_reel_90s_{today}.mp4"
+        if video_url:
+            # Test mode with hardcoded URL
+            print(f"Using hardcoded video URL: {video_url}")
+            temp_video_path = download_video_from_gcs(video_url)
+            description = "Test reel upload #NewMusic #MusicDiscovery"
         else:
-            filename = f"stitched_reel_full_{today}.mp4"
-        
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(GCS_BUCKET_NAME)
-        blob = bucket.blob(f"videos/{today}/stitched/{filename}")
-        
-        if blob.exists():
-            # Make sure it's public
-            blob.make_public()
-            return blob.public_url
-        else:
-            print(f"Video file not found: {filename}")
-            return None
+            # Production mode
+            today = datetime.now().strftime('%Y-%m-%d')
+            video_path = f"videos/{today}/stitched/stitched_reel_{today}.mp4"
             
-    except Exception as e:
-        print(f"Error getting video URL: {e}")
-        return None
-
-def post_to_facebook_reel(video_url, caption):
-    """Post video as Facebook Reel"""
-    try:
-        # Step 1: Create video container
-        url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels"
+            print(f"Downloading stitched video from GCS: {video_path}")
+            temp_video_path = download_video_from_gcs(video_path)
+            
+            # Get song list for description
+            songs = get_todays_songs()
+            description = create_reel_description(songs)
         
-        payload = {
-            'upload_phase': 'start',
-            'access_token': FACEBOOK_ACCESS_TOKEN
-        }
+        print("Step 1: Initializing upload session...")
+        init_response = initialize_upload_session(FACEBOOK_PAGE_ID, FACEBOOK_ACCESS_TOKEN)
+        video_id = init_response['video_id']
+        print(f"Video ID: {video_id}")
         
-        response = requests.post(url, data=payload)
-        print(f"Reel response status: {response.status_code}")
-        print(f"Reel response: {response.text}")
-        response.raise_for_status()
+        print("Step 2: Uploading video...")
+        upload_response = upload_video_file(video_id, temp_video_path, FACEBOOK_ACCESS_TOKEN)
+        print(f"Upload response: {upload_response}")
         
-        video_id = response.json().get('video_id')
-        upload_url = response.json().get('upload_url')
+        print("Waiting for processing...")
+        if not wait_for_processing(video_id, FACEBOOK_ACCESS_TOKEN):
+            raise Exception("Video processing timed out")
         
-        if not video_id or not upload_url:
-            print("Failed to get video container")
-            return False
+        print("Step 3: Publishing reel...")
+        publish_response = publish_reel(FACEBOOK_PAGE_ID, video_id, description, FACEBOOK_ACCESS_TOKEN)
+        print(f"Publish response: {publish_response}")
         
-        print(f"Created video container: {video_id}")
-        
-        # Step 2: Upload video to the upload URL
-        video_response = requests.get(video_url)
-        video_response.raise_for_status()
-        
-        upload_response = requests.post(
-            upload_url,
-            files={'file': ('video.mp4', video_response.content, 'video/mp4')}
-        )
-        upload_response.raise_for_status()
-        
-        print("Video uploaded successfully")
-        
-        # Step 3: Publish the reel
-        publish_url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels"
-        
-        publish_payload = {
-            'video_id': video_id,
-            'upload_phase': 'finish',
-            'video_state': 'PUBLISHED',
-            'description': caption,
-            'access_token': FACEBOOK_ACCESS_TOKEN
-        }
-        
-        publish_response = requests.post(publish_url, data=publish_payload)
-        publish_response.raise_for_status()
-        
-        result = publish_response.json()
-        print(f"✅ Facebook Reel published successfully: {result}")
-        return True
+        print("✅ Facebook Reel posted successfully!")
         
     except Exception as e:
-        print(f"❌ Error posting Facebook Reel: {e}")
-        if hasattr(e, 'response') and e.response:
-            print(f"Response: {e.response.text}")
-        return False
-
-def post_to_facebook_feed(video_url, caption):
-    """Post video to Facebook feed as regular post"""
-    try:
-        url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/videos"
-        
-        # Download video content
-        video_response = requests.get(video_url)
-        print(f"Video download status: {video_response.status_code}")
-        video_response.raise_for_status()
-        
-        # Upload video
-        files = {
-            'file': ('video.mp4', video_response.content, 'video/mp4')
-        }
-        
-        data = {
-            'description': caption,
-            'access_token': FACEBOOK_ACCESS_TOKEN
-        }
-        
-        response = requests.post(url, files=files, data=data)
-        print(f"Feed response status: {response.status_code}")
-        print(f"Feed response: {response.text}")
-        response.raise_for_status()
-        
-        result = response.json()
-        print(f"✅ Facebook feed post published successfully: {result}")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Error posting to Facebook feed: {e}")
-        if hasattr(e, 'response') and e.response:
-            print(f"Response: {e.response.text}")
-        return False
-
-def main():
-    # First, let's test if we have the right token type
-    print("Testing token and getting page info...")
-    
-    # Test 1: Get page info
-    try:
-        url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}"
-        params = {'access_token': FACEBOOK_ACCESS_TOKEN}
-        response = requests.get(url, params=params)
-        print(f"Page info status: {response.status_code}")
-        print(f"Page info: {response.text}")
-    except Exception as e:
-        print(f"Page info error: {e}")
-    
-    # Test 2: Try simple text post first
-    print("\nTesting simple text post...")
-    try:
-        url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/feed"
-        data = {
-            'message': '🎵 Test post from API - Daily Music Discovery',
-            'access_token': FACEBOOK_ACCESS_TOKEN
-        }
-        response = requests.post(url, data=data)
-        print(f"Text post status: {response.status_code}")
-        print(f"Text post response: {response.text}")
-        
-        if response.status_code == 200:
-            print("✅ Text posting works! Token is valid.")
-        
-    except Exception as e:
-        print(f"Text post error: {e}")
-    
-    # Test 3: Only try video if text post works
-    # Hardcoded video URL for testing
-    test_video_url = "https://storage.googleapis.com/bebop_data/videos/2025-05-28/stitched/stitched_reel_2025-05-28.mp4"
-    
-    # Test caption
-    caption = "🎵 Daily Music Discovery Test\n\n1. Test Artist - Test Song\n\n#NewMusic #MusicDiscovery #DailyPicks"
-    
-    print("\nTrying video post...")
-    post_to_facebook_feed(test_video_url, caption)
+        print(f"❌ Error posting to Facebook: {str(e)}")
+        raise
+    finally:
+        # Clean up temp file
+        if 'temp_video_path' in locals() and os.path.exists(temp_video_path):
+            os.remove(temp_video_path)
 
 if __name__ == "__main__":
-    main()
+    # For testing, you can hardcode a video URL
+    # Example: post_facebook_reel("videos/2024-01-15/stitched/stitched_reel_2024-01-15.mp4")
+    
+    # For production, leave empty to use today's stitched video
+    post_facebook_reel("https://storage.googleapis.com/bebop_data/videos/2025-05-28/stitched/stitched_reel_2025-05-28.mp4")
