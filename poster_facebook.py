@@ -6,18 +6,30 @@ import time
 FACEBOOK_ACCESS_TOKEN = os.environ.get('FACEBOOK_ACCESS_TOKEN')
 FACEBOOK_PAGE_ID = os.environ.get('FACEBOOK_PAGE_ID')
 
+print(f"Page ID: {FACEBOOK_PAGE_ID}")
+print(f"Token: {'Set' if FACEBOOK_ACCESS_TOKEN else 'Not set'}")
+
+if not FACEBOOK_ACCESS_TOKEN or not FACEBOOK_PAGE_ID:
+    print("Error: Missing FACEBOOK_ACCESS_TOKEN or FACEBOOK_PAGE_ID")
+    exit(1)
+
 # Video to upload
 VIDEO_URL = "https://storage.googleapis.com/bebop_data/videos/2025-05-29/stitched/stitched_reel_2025-05-29.mp4"
 
 # Step 1: Initialize upload session
-print("Step 1: Starting upload session...")
-response = requests.post(
-    f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels",
-    data={
-        "upload_phase": "start",
-        "access_token": FACEBOOK_ACCESS_TOKEN
-    }
-)
+print("Step 1: Starting upload session...", flush=True)
+try:
+    response = requests.post(
+        f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels",
+        data={
+            "upload_phase": "start",
+            "access_token": FACEBOOK_ACCESS_TOKEN
+        },
+        timeout=30
+    )
+except requests.exceptions.RequestException as e:
+    print(f"Request failed: {e}")
+    exit(1)
 
 if response.status_code != 200:
     print(f"Error: {response.text}")
