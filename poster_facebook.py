@@ -6,46 +6,100 @@ from datetime import datetime
 from google.cloud import storage
 from google.oauth2 import service_account
 import gspread
-import pandas as pd
 
 # Configuration
 FACEBOOK_ACCESS_TOKEN = os.environ.get('FACEBOOK_ACCESS_TOKEN')
 FACEBOOK_PAGE_ID = os.environ.get('FACEBOOK_PAGE_ID')
-GCP_SA_KEY = json.loads(os.environ.get('GCP_SA_KEY'))
+GCP_SA_KEY = os.environ.get('GCP_SA_KEY')
 GCS_BUCKET_NAME = "bebop_data"
 SPREADSHEET_ID = os.environ.get('SPREADSHEET_ID')
 
-# Initialize Google Cloud Storage
-storage_credentials = service_account.Credentials.from_service_account_info(GCP_SA_KEY)
-storage_client = storage.Client(credentials=storage_credentials)
-bucket = storage_client.bucket(GCS_BUCKET_NAME)
+def init_gcp():
+    """Initialize GCP credentials"""
+    with open('gcp_credentials.json', 'w') as f:
+        f.write(GCP_SA_KEY)
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_credentials.json'
 
-# Initialize Google Sheets
-sheets_credentials = service_account.Credentials.from_service_account_info(
-    GCP_SA_KEY,
-    scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-)
-gc = gspread.authorize(sheets_credentials)
-sheet = gc.open_by_key(SPREADSHEET_ID).sheet1
+def fetch_songs_from_spreadsheet():
+    """Fetch songs from Google Spreadsheet"""
+    try:
+        init_gcp()
+        credentials = service_account.Credentials.from_service_account_file(
+            'gcp_credentials.json',
+            scopes=['https://www.googleapis.com/auth/spreadsheets.readonly',
+                    'https://www.googleapis.com/auth/drive.readonly']
+        )
+        gc = gspread.authorize(credentials)
+        
+        spreadsheet = gc.open_by_key(SPREADSHEET_ID)
+        worksheet = spreadsheet.sheet1
+        
+        all_values = worksheet.get_all_values()
+        
+        if not all_values:
+            return []
+        
+        headers = all_values[0]
+        data = all_values[1:]
+        
+        songs_data = []
+        for row in data:
+            song = {}
+            for i, header in enumerate(headers):
+                if i < len(row):
+                    if header == 'create_video':
+                        song[header] = row[i].upper() == 'TRUE'
+                    else:
+                        song[header] = row[i]
+            songs_data.append(song)
+        
+        return songs_data
+        
+    except Exception as e:
+        print(f"Error fetching songs: {e}")
+        return []
 
-def get_todays_songs():
-    """Fetch today's songs from Google Sheets"""
-    data = sheet.get_all_records()
-    df = pd.DataFrame(data)
+def get_today_songs():
+    """Get today's songs with create_video = TRUE"""
+    songs = fetch_songs_from_spreadsheet()
+    today = datetime.now().strftime("%Y-%m-%d")
     
-    # Convert selected_date to datetime
-    df['selected_date'] = pd.to_datetime(df['selected_date'], format='%Y-%m-%d', errors='coerce')
+    today_songs = [
+        song for song in songs 
+        if song.get('selected_date') == today and song.get('create_video') == True
+    ]
     
-    today = pd.Timestamp.now().normalize()
-    todays_songs = df[(df['selected_date'] == today) & (df['create_video'] == True)]
-    
-    return todays_songs.to_dict('records')
+    print(f"Found {len(today_songs)} songs for today")
+    return today_songs
 
-def download_video_from_gcs(video_path):
-    """Download video from GCS to local temp file"""
+def get_stitched_video_url():
+    """Get today's stitched video URL"""
+    today = datetime.now().strftime("%Y-%m-%d")
+    filename = f"stitched_reel_{today}.mp4"
+    return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/videos/{today}/stitched/{filename}"
+
+def create_caption(songs):
+    """Create caption for the reel"""
+    if not songs:
+        return "🎵 Today's Music Discoveries! 🎵\n\n#NewMusic #MusicDiscovery #DailyMusic"
+    
+    caption = "🎵 Today's Music Discoveries! 🎵\n\n"
+    for i, song in enumerate(songs, 1):
+        caption += f"{i}. {song.get('artist', '')} - {song.get('song_name', '')}\n"
+    
+    caption += "\n#NewMusic #MusicDiscovery #DailyMusic #FacebookReels"
+    return caption
+
+def download_video_from_url(video_url):
+    """Download video from URL to local temp file"""
     temp_file = f"/tmp/temp_video_{int(time.time())}.mp4"
-    blob = bucket.blob(video_path)
-    blob.download_to_filename(temp_file)
+    response = requests.get(video_url, stream=True)
+    response.raise_for_status()
+    
+    with open(temp_file, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+    
     return temp_file
 
 def initialize_upload_session(page_id, access_token):
@@ -124,51 +178,48 @@ def publish_reel(page_id, video_id, description, access_token):
     response.raise_for_status()
     return response.json()
 
-def create_reel_description(songs):
-    """Create description with song list"""
-    description = "🎵 Today's Music Discoveries! 🎵\n\n"
-    
-    for i, song in enumerate(songs, 1):
-        description += f"{i}. {song['artist']} - {song['title']}\n"
-    
-    description += "\n#NewMusic #MusicDiscovery #DailyMusic"
-    return description
-
-def post_facebook_reel(video_url=None):
+def main():
     """Main function to post reel to Facebook"""
     try:
-        if video_url:
-            # Test mode with hardcoded URL
-            print(f"Using hardcoded video URL: {video_url}")
-            temp_video_path = download_video_from_gcs(video_url)
-            description = "Test reel upload #NewMusic #MusicDiscovery"
-        else:
-            # Production mode
-            today = datetime.now().strftime('%Y-%m-%d')
-            video_path = f"videos/{today}/stitched/stitched_reel_{today}.mp4"
-            
-            print(f"Downloading stitched video from GCS: {video_path}")
-            temp_video_path = download_video_from_gcs(video_path)
-            
-            # Get song list for description
-            songs = get_todays_songs()
-            description = create_reel_description(songs)
+        # Get today's songs for caption
+        songs = get_today_songs()
+        if not songs:
+            print("No songs found for today")
+            return
         
+        print(f"Processing {len(songs)} songs...")
+        
+        # Get stitched video URL
+        video_url = get_stitched_video_url()
+        print(f"Using video: {video_url}")
+        
+        # Download video
+        print("Downloading video...")
+        temp_video_path = download_video_from_url(video_url)
+        
+        # Create caption
+        caption = create_caption(songs)
+        print(f"Caption: {caption[:100]}...")
+        
+        # Step 1: Initialize upload session
         print("Step 1: Initializing upload session...")
         init_response = initialize_upload_session(FACEBOOK_PAGE_ID, FACEBOOK_ACCESS_TOKEN)
         video_id = init_response['video_id']
         print(f"Video ID: {video_id}")
         
+        # Step 2: Upload video
         print("Step 2: Uploading video...")
         upload_response = upload_video_file(video_id, temp_video_path, FACEBOOK_ACCESS_TOKEN)
         print(f"Upload response: {upload_response}")
         
+        # Wait for processing
         print("Waiting for processing...")
         if not wait_for_processing(video_id, FACEBOOK_ACCESS_TOKEN):
             raise Exception("Video processing timed out")
         
+        # Step 3: Publish reel
         print("Step 3: Publishing reel...")
-        publish_response = publish_reel(FACEBOOK_PAGE_ID, video_id, description, FACEBOOK_ACCESS_TOKEN)
+        publish_response = publish_reel(FACEBOOK_PAGE_ID, video_id, caption, FACEBOOK_ACCESS_TOKEN)
         print(f"Publish response: {publish_response}")
         
         print("✅ Facebook Reel posted successfully!")
@@ -182,8 +233,33 @@ def post_facebook_reel(video_url=None):
             os.remove(temp_video_path)
 
 if __name__ == "__main__":
-    # For testing, you can hardcode a video URL
-    # Example: post_facebook_reel("videos/2024-01-15/stitched/stitched_reel_2024-01-15.mp4")
+    import sys
     
-    # For production, leave empty to use today's stitched video
-    post_facebook_reel("https://storage.googleapis.com/bebop_data/videos/2025-05-28/stitched/stitched_reel_2025-05-28.mp4")
+    if len(sys.argv) > 1:
+        # Test mode with provided video URL
+        test_url = sys.argv[1]
+        print(f"TEST MODE: Using video URL: {test_url}")
+        
+        # Download and post the test video
+        try:
+            temp_video_path = download_video_from_url(test_url)
+            
+            # Initialize upload
+            init_response = initialize_upload_session(FACEBOOK_PAGE_ID, FACEBOOK_ACCESS_TOKEN)
+            video_id = init_response['video_id']
+            
+            # Upload
+            upload_response = upload_video_file(video_id, temp_video_path, FACEBOOK_ACCESS_TOKEN)
+            
+            # Wait for processing
+            if wait_for_processing(video_id, FACEBOOK_ACCESS_TOKEN):
+                # Publish with test caption
+                publish_reel(FACEBOOK_PAGE_ID, video_id, "Test video upload #TestMode", FACEBOOK_ACCESS_TOKEN)
+                print("✅ Test video posted successfully!")
+            
+            os.remove(temp_video_path)
+        except Exception as e:
+            print(f"❌ Test failed: {str(e)}")
+    else:
+        # Production mode
+        main()
