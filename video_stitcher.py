@@ -167,24 +167,7 @@ def main():
         
         today = datetime.datetime.now().strftime("%Y-%m-%d")
         
-        # Create full stitched video (original functionality)
-        full_output_filename = f"stitched_reel_{today}.mp4"
-        full_output_path = os.path.join(temp_dir, full_output_filename)
-        
-        full_stitched_video = stitch_videos(video_files, full_output_path)
-        if full_stitched_video:
-            # Upload full video to GCS
-            full_gcs_path = f"videos/{today}/stitched/{full_output_filename}"
-            full_public_url = upload_to_gcs(full_stitched_video, full_gcs_path)
-            
-            if full_public_url:
-                print(f"✅ Successfully created full stitched video: {full_public_url}")
-            else:
-                print("❌ Failed to upload full stitched video")
-        else:
-            print("❌ Failed to create full stitched video")
-        
-        # Create 60-second version (first 4 videos only)
+        # Create 60-second version (first 4 videos)
         short_output_filename = f"stitched_reel_60s_{today}.mp4"
         short_output_path = os.path.join(temp_dir, short_output_filename)
         
@@ -200,6 +183,40 @@ def main():
                 print("❌ Failed to upload 60s stitched video")
         else:
             print("❌ Failed to create 60s stitched video")
+        
+        # Create 90-second version (first 6 videos)
+        medium_output_filename = f"stitched_reel_90s_{today}.mp4"
+        medium_output_path = os.path.join(temp_dir, medium_output_filename)
+        
+        medium_stitched_video = stitch_videos(video_files, medium_output_path, max_videos=6)
+        if medium_stitched_video:
+            # Upload 90s video to GCS
+            medium_gcs_path = f"videos/{today}/stitched/{medium_output_filename}"
+            medium_public_url = upload_to_gcs(medium_stitched_video, medium_gcs_path)
+            
+            if medium_public_url:
+                print(f"✅ Successfully created 90s stitched video: {medium_public_url}")
+            else:
+                print("❌ Failed to upload 90s stitched video")
+        else:
+            print("❌ Failed to create 90s stitched video")
+        
+        # Create full stitched video (all videos)
+        full_output_filename = f"stitched_reel_full_{today}.mp4"
+        full_output_path = os.path.join(temp_dir, full_output_filename)
+        
+        full_stitched_video = stitch_videos(video_files, full_output_path)
+        if full_stitched_video:
+            # Upload full video to GCS
+            full_gcs_path = f"videos/{today}/stitched/{full_output_filename}"
+            full_public_url = upload_to_gcs(full_stitched_video, full_gcs_path)
+            
+            if full_public_url:
+                print(f"✅ Successfully created full stitched video: {full_public_url}")
+            else:
+                print("❌ Failed to upload full stitched video")
+        else:
+            print("❌ Failed to create full stitched video")
         
     finally:
         # Cleanup temp directory
