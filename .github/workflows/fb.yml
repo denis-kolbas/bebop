@@ -33,4 +33,4 @@ jobs:
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
-          python poster_fb_story.py
+          python poster_facebook.py
