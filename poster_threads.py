@@ -73,7 +73,7 @@ def get_today_songs():
 def get_stitched_video_url():
     """Get today's stitched video URL"""
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    filename = f"stitched_reel_{today}.mp4"
+    filename = f"stitched_reel_full_{today}.mp4"
     return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/videos/{today}/stitched/{filename}"
 
 def create_post_text(songs):
