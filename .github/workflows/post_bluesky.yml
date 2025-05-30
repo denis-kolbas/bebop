@@ -1,0 +1,43 @@
+name: Manual Bluesky Posting
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Date to post (YYYY-MM-DD format, leave empty for today)"
+        required: false
+        type: string
+
+jobs:
+  post-to-bluesky:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests gspread google-auth google-auth-oauthlib google-auth-httplib2
+
+      - name: Override date if specified
+        if: ${{ github.event.inputs.date != '' }}
+        run: |
+          # Override today's date with the specified date
+          sed -i "s/datetime.datetime.now().strftime(\"%Y-%m-%d\")/\"${{ github.event.inputs.date }}\"/g" poster_bluesky.py
+
+      - name: Run Bluesky posting
+        run: python poster_bluesky.py
+        env:
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+          PYTHONUNBUFFERED: 1
