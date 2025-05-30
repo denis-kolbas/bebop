@@ -278,7 +278,7 @@ def update_playlist_description(youtube):
             body={
                 'id': YOUTUBE_PLAYLIST_ID,
                 'snippet': {
-                    'title': 'Daily Music Discoveries',
+                    'title': 'Weekly Rotation',
                     'description': description
                 }
             }
