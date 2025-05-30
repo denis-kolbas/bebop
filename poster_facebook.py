@@ -73,7 +73,7 @@ def get_today_songs():
 def get_stitched_video_url():
     """Get today's stitched video URL"""
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    filename = f"stitched_reel_90s_{today}.mp4"
+    filename = f"stitched_reel_{today}.mp4"
     return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/videos/{today}/stitched/{filename}"
 
 def create_description(songs):
@@ -229,9 +229,9 @@ def post_individual_stories(songs):
         if not upload_video_from_url(video_id, video_url):
             continue
         
-        # Wait for processing
-        for attempt in range(60):  # Max 5 minutes per story
-            time.sleep(5)
+        # Wait for processing (reduced timeout)
+        for attempt in range(12):  # Max 2 minutes per story
+            time.sleep(10)  # Check every 10 seconds
             video_status, processing_status = check_video_status(video_id)
             
             if video_status == 'ready' or processing_status == 'complete':
@@ -239,7 +239,10 @@ def post_individual_stories(songs):
             elif video_status == 'error':
                 print(f"Story processing failed for {song['song_name']}")
                 break
-            elif attempt == 59:
+            elif processing_status == 'not_started' and attempt > 6:
+                print(f"Story processing never started for {song['song_name']} - skipping")
+                break
+            elif attempt == 11:
                 print(f"Story processing timeout for {song['song_name']}")
                 break
         
@@ -299,21 +302,23 @@ def main():
         print("❌ Failed to upload reel video")
         return
     
-    # Wait for processing
-    print("Waiting for video processing...")
-    for attempt in range(60):  # Max 5 minutes
+    # Wait for processing (5 minutes max)
+    processing_complete = False
+    for attempt in range(60):  # 5 minutes total
         time.sleep(5)
         video_status, processing_status = check_video_status(video_id)
         
         if video_status == 'ready' or processing_status == 'complete':
+            processing_complete = True
             print("Video processing complete")
             break
         elif video_status == 'error':
             print("Video processing failed")
             return
-        elif attempt == 59:
-            print("Processing timeout")
-            return
+    
+    # Try to publish regardless of processing status after 5 minutes
+    if not processing_complete:
+        print("Processing still pending after 5 minutes, attempting to publish anyway...")
     
     # Publish reel
     result = publish_reel(video_id, description)
