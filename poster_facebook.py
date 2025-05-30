@@ -73,7 +73,7 @@ def get_today_songs():
 def get_stitched_video_url():
     """Get today's stitched video URL"""
     today = datetime.datetime.now().strftime("%Y-%m-%d")
-    filename = f"stitched_reel_90s_{today}.mp4"
+    filename = f"stitched_reel_{today}.mp4"
     return f"https://storage.googleapis.com/{GCS_BUCKET_NAME}/videos/{today}/stitched/{filename}"
 
 def create_description(songs):
@@ -229,29 +229,31 @@ def post_individual_stories(songs):
         if not upload_video_from_url(video_id, video_url):
             continue
         
-        # Wait for processing (reduced timeout)
-        for attempt in range(12):  # Max 2 minutes per story
-            time.sleep(10)  # Check every 10 seconds
+        # Wait for processing (2 minutes max for stories)
+        processing_complete = False
+        for attempt in range(4):  # 2 minutes total
+            time.sleep(30)
             video_status, processing_status = check_video_status(video_id)
             
             if video_status == 'ready' or processing_status == 'complete':
+                processing_complete = True
                 break
             elif video_status == 'error':
                 print(f"Story processing failed for {song['song_name']}")
                 break
-            elif processing_status == 'not_started' and attempt > 6:
-                print(f"Story processing never started for {song['song_name']} - skipping")
-                break
-            elif attempt == 11:
-                print(f"Story processing timeout for {song['song_name']}")
-                break
         
-        # Publish story
-        if video_status == 'ready' or processing_status == 'complete':
-            post_id = publish_story(video_id)
-            if post_id:
-                successful_stories += 1
-                print(f"✅ Posted story for {song['song_name']}")
+        # Try to publish regardless of processing status after 2 minutes
+        if processing_complete:
+            print(f"Processing complete for {song['song_name']}")
+        else:
+            print(f"Processing still pending for {song['song_name']}, attempting to publish anyway...")
+            
+        post_id = publish_story(video_id)
+        if post_id:
+            successful_stories += 1
+            print(f"✅ Posted story for {song['song_name']}")
+        else:
+            print(f"❌ Failed to post story for {song['song_name']}")
             
         # Rate limiting between stories
         time.sleep(60)
