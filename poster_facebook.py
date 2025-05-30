@@ -218,7 +218,7 @@ def post_individual_stories(songs):
         if not video_url:
             continue
             
-        print(f"Posting story {i+1}/{len(songs)}: {song['song_name']}")
+        print(f"Posting story {i+1}/{len(songs)}: {song['song_name']}", flush=True)
         
         # Create story session
         video_id = create_story_session(video_url)
@@ -264,32 +264,27 @@ def main():
         print("Error: Missing FACEBOOK_ACCESS_TOKEN or FACEBOOK_PAGE_ID")
         return
     
-    print(f"Page ID: {FACEBOOK_PAGE_ID}")
-    print(f"Token: {'Set' if FACEBOOK_ACCESS_TOKEN else 'Not set'}")
+    print(f"Page ID: {FACEBOOK_PAGE_ID}", flush=True)
+    print(f"Token: {'Set' if FACEBOOK_ACCESS_TOKEN else 'Not set'}", flush=True)
     
     # Get today's songs for description
     songs = get_today_songs()
     if not songs:
-        print("No songs found for today")
+        print("No songs found for today", flush=True)
         return
     
-    print(f"Processing {len(songs)} songs...")
+    print(f"Processing {len(songs)} songs...", flush=True)
     
-    # Post individual stories first
-    print("\n--- Posting Individual Stories ---")
-    stories_posted = post_individual_stories(songs)
-    print(f"Posted {stories_posted}/{len(songs)} individual stories")
-    
-    # Post stitched reel
-    print("\n--- Posting Stitched Reel ---")
+    # Post stitched reel first
+    print("\n--- Posting Stitched Reel ---", flush=True)
     
     # Get stitched video URL
     video_url = get_stitched_video_url()
-    print(f"Using video: {video_url}")
+    print(f"Using video: {video_url}", flush=True)
     
     # Create description
     description = create_description(songs)
-    print(f"Description: {description[:100]}...")
+    print(f"Description: {description[:100]}...", flush=True)
     
     # Create reel session
     video_id = create_reel_session()
@@ -304,8 +299,8 @@ def main():
     
     # Wait for processing (5 minutes max)
     processing_complete = False
-    for attempt in range(60):  # 5 minutes total
-        time.sleep(5)
+    for attempt in range(10):  # 5 minutes total
+        time.sleep(30)
         video_status, processing_status = check_video_status(video_id)
         
         if video_status == 'ready' or processing_status == 'complete':
@@ -326,6 +321,11 @@ def main():
         print(f"✅ Successfully posted Facebook reel")
     else:
         print("❌ Failed to post reel")
+    
+    # Post individual stories after reel
+    print("\n--- Posting Individual Stories ---")
+    stories_posted = post_individual_stories(songs)
+    print(f"Posted {stories_posted}/{len(songs)} individual stories")
     
     print(f"\n🎉 Summary: {stories_posted} stories + 1 reel posted")
 
