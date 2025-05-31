@@ -78,10 +78,12 @@ def get_stitched_video_url():
 
 def create_caption(songs):
     """Create caption for the reel"""
-    if not songs:
-        return "Top new releases: #newmusic #music #playlist #trending"
+    today_formatted = datetime.datetime.now().strftime("%B %d, %Y")
     
-    caption = "Top new releases:\n\n"
+    if not songs:
+        return f"Top new releases - {today_formatted}: #newmusic #music #playlist #trending"
+    
+    caption = f"Top new releases - {today_formatted}:\n\n"
     for i, song in enumerate(songs, 1):
         caption += f"{i}. {song['song_name']} - {song['artist']}\n"
     

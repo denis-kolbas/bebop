@@ -118,15 +118,17 @@ def upload_video_blob(session, video_url):
 
 def create_post_text(songs):
     """Create text for the post"""
-    if not songs:
-        return "Top new releases 🎵 #newmusic"
+    today_formatted = datetime.datetime.now().strftime("%B %d, %Y")
     
-    text = "Top new releases:\n\n"
+    if not songs:
+        return f"Top new releases - {today_formatted}"
+    
+    text = f"Top new releases - {today_formatted}\n\n"
     for i, song in enumerate(songs, 1):
         text += f"{i}. {song['song_name']} - {song['artist']}\n"
     
-    text += "\n#newmusic"
-    return text[:300]  # Keep it reasonable length
+    text += "\n#music"
+    return text
 
 def create_bluesky_post(session, text, video_blob):
     """Create Bluesky post with video"""

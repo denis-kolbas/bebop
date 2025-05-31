@@ -78,10 +78,12 @@ def get_stitched_video_url():
 
 def create_post_text(songs):
     """Create text for the main post"""
-    if not songs:
-        return "Top new releases 🎵 #newmusic"
+    today_formatted = datetime.datetime.now().strftime("%B %d, %Y")
     
-    text = "Top new releases:\n\n"
+    if not songs:
+        return f"Top new releases - {today_formatted} 🎵 #newmusic"
+    
+    text = f"Top new releases - {today_formatted}:\n\n"
     for i, song in enumerate(songs, 1):
         text += f"{i}. {song['song_name']} - {song['artist']}\n"
     
