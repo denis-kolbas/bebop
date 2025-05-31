@@ -147,6 +147,23 @@ jobs:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
           PYTHONUNBUFFERED: 1
 
+  post-tiktok:
+    runs-on: ubuntu-latest
+    needs: stitch-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+      - run: python poster_tiktok.py
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+          PYTHONUNBUFFERED: 1
+
   post-pinterest:
     runs-on: ubuntu-latest
     needs: stitch-videos
