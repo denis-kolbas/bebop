@@ -16,7 +16,7 @@ from google.oauth2 import service_account
 
 # OAuth credentials
 CLIENT_ID = "YOUR_CLIENT_ID_HERE"
-CLIENT_SECRET = "YOUR_CLIENT_SECRET_HERE" 
+CLIENT_SECRET = "YOUR_CLIENT_SECRET_HERE"
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 
 def init_gcp():
@@ -132,12 +132,6 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
    # Get previously selected songs from JSON
    selected_songs = get_selected_songs(bucket_name)
    
-   # Count how many times each song has been selected
-   song_selection_count = {}
-   for song in selected_songs:
-       url = song['song_url']
-       song_selection_count[url] = song_selection_count.get(url, 0) + 1
-   
    # Identify songs already processed or tagged for video (from both sources)
    selected_song_ids = set()
    for song in selected_songs:
@@ -150,12 +144,8 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
    
    print(f"Total songs to exclude: {len(selected_song_ids)} (JSON: {len([s for s in selected_songs if s.get('create_video', False)])}, Sheet: {len(sheet_selected_urls)})")
    
-   # Filter out previously selected songs and songs selected more than 2 times
-   new_tracks = []
-   for track in tracks:
-       url = track['song_url']
-       if url not in selected_song_ids and song_selection_count.get(url, 0) < 2:
-           new_tracks.append(track)
+   # Filter out previously selected songs
+   new_tracks = [track for track in tracks if track['song_url'] not in selected_song_ids]
    
    # Also get songs from the last 5 days that weren't selected
    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -177,13 +167,8 @@ def select_new_songs(tracks, bucket_name, num_songs=20):
        except:
            continue
    
-   # Filter out previously selected tracks and songs selected more than 2 times
-   filtered_recent_tracks = []
-   for track in recent_tracks:
-       url = track['song_url']
-       if url not in selected_song_ids and song_selection_count.get(url, 0) < 2:
-           filtered_recent_tracks.append(track)
-   recent_tracks = filtered_recent_tracks
+   # Filter out previously selected tracks
+   recent_tracks = [track for track in recent_tracks if track['song_url'] not in selected_song_ids]
    
    # Combine with new tracks, removing duplicates
    all_tracks = new_tracks.copy()
