@@ -92,7 +92,7 @@ def create_description(songs):
 
 def create_story_session(video_url):
     """Create Facebook story upload session"""
-    url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_stories"
+    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_stories"
     
     payload = {
         'upload_phase': 'start',
@@ -112,7 +112,7 @@ def create_story_session(video_url):
 
 def create_reel_session():
     """Create Facebook reel upload session"""
-    url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels"
+    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_reels"
     
     payload = {
         'upload_phase': 'start',
@@ -132,7 +132,7 @@ def create_reel_session():
 
 def upload_video_from_url(video_id, video_url):
     """Upload video from URL"""
-    url = f"https://rupload.facebook.com/video-upload/v18.0/{video_id}"
+    url = f"https://rupload.facebook.com/video-upload/v23.0/{video_id}"
     
     headers = {
         'Authorization': f'OAuth {FACEBOOK_ACCESS_TOKEN}',
@@ -150,7 +150,7 @@ def upload_video_from_url(video_id, video_url):
 
 def check_video_status(video_id):
     """Check video processing status"""
-    url = f"https://graph.facebook.com/v18.0/{video_id}"
+    url = f"https://graph.facebook.com/v23.0/{video_id}"
     params = {
         'fields': 'status',
         'access_token': FACEBOOK_ACCESS_TOKEN
@@ -170,7 +170,7 @@ def check_video_status(video_id):
 
 def publish_story(video_id):
     """Publish the story"""
-    url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_stories"
+    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_stories"
     
     payload = {
         'access_token': FACEBOOK_ACCESS_TOKEN,
@@ -191,7 +191,7 @@ def publish_story(video_id):
 
 def publish_reel(video_id, description):
     """Publish the reel"""
-    url = f"https://graph.facebook.com/v18.0/{FACEBOOK_PAGE_ID}/video_reels"
+    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_reels"
     
     payload = {
         'access_token': FACEBOOK_ACCESS_TOKEN,
