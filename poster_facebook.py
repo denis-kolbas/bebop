@@ -90,8 +90,93 @@ def create_description(songs):
     description += "\n#newmusic #music #playlist #trending #reel #discover"
     return description
 
-def create_story_session(video_url):
-    """Create Facebook story upload session"""
+# REELS API - Following the official documentation
+def initialize_reel_upload_session():
+    """Step 1: Initialize an upload session for reels"""
+    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_reels"
+    
+    payload = {
+        'upload_phase': 'start',
+        'access_token': FACEBOOK_ACCESS_TOKEN
+    }
+    
+    response = requests.post(url, data=payload)
+    
+    if response.status_code == 200:
+        result = response.json()
+        video_id = result['video_id']
+        upload_url = result['upload_url']
+        print(f"Reel upload session created: {video_id}")
+        return video_id, upload_url
+    else:
+        print(f"Error creating reel upload session: {response.text}")
+        return None, None
+
+def upload_reel_video(video_id, video_url):
+    """Step 2: Upload the video for reels using hosted file method"""
+    upload_url = f"https://rupload.facebook.com/video-upload/v23.0/{video_id}"
+    
+    headers = {
+        'Authorization': f'OAuth {FACEBOOK_ACCESS_TOKEN}',
+        'file_url': video_url
+    }
+    
+    response = requests.post(upload_url, headers=headers)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print("Reel video upload successful")
+        return True
+    else:
+        print(f"Reel upload error: {response.text}")
+        return False
+
+def get_reel_upload_status(video_id):
+    """Get the upload status of the reel"""
+    url = f"https://graph.facebook.com/v23.0/{video_id}"
+    params = {
+        'fields': 'status',
+        'access_token': FACEBOOK_ACCESS_TOKEN
+    }
+    
+    response = requests.get(url, params=params)
+    
+    if response.status_code == 200:
+        status_data = response.json().get('status', {})
+        video_status = status_data.get('video_status', '')
+        uploading_phase = status_data.get('uploading_phase', {}).get('status', '')
+        processing_phase = status_data.get('processing_phase', {}).get('status', '')
+        print(f"Video Status: {video_status}, Upload: {uploading_phase}, Processing: {processing_phase}")
+        return video_status, uploading_phase, processing_phase
+    else:
+        print(f"Error checking reel status: {response.text}")
+        return None, None, None
+
+def publish_reel(video_id, description):
+    """Step 3: Publish the reel"""
+    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_reels"
+    
+    payload = {
+        'access_token': FACEBOOK_ACCESS_TOKEN,
+        'video_id': video_id,
+        'upload_phase': 'finish',
+        'video_state': 'PUBLISHED',
+        'description': description
+    }
+    
+    response = requests.post(url, data=payload)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"Reel published successfully: {result}")
+        return result
+    else:
+        print(f"Error publishing reel: {response.text}")
+        return None
+
+# STORIES API - Following the official documentation
+def initialize_story_upload_session():
+    """Step 1: Initialize an upload session for stories"""
     url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_stories"
     
     payload = {
@@ -104,75 +189,34 @@ def create_story_session(video_url):
     if response.status_code == 200:
         result = response.json()
         video_id = result['video_id']
-        print(f"Story session created: {video_id}")
-        return video_id
+        upload_url = result['upload_url']
+        print(f"Story upload session created: {video_id}")
+        return video_id, upload_url
     else:
-        print(f"Error creating story session: {response.text}")
-        return None
+        print(f"Error creating story upload session: {response.text}")
+        return None, None
 
-def create_video_upload_session(video_url, description):
-    """Create video upload session using Resumable Upload API"""
-    # First, get the app ID from environment or use a placeholder
-    app_id = os.environ.get("FACEBOOK_APP_ID", "YOUR_APP_ID")
-    
-    # Get file size (we'll estimate based on typical video sizes)
-    # In production, you'd want to get the actual file size from the URL
-    estimated_file_size = 50 * 1024 * 1024  # 50MB estimate
-    
-    # Step 1: Start upload session
-    upload_url = f"https://graph.facebook.com/v23.0/{app_id}/uploads"
-    
-    params = {
-        'file_name': 'video.mp4',
-        'file_length': estimated_file_size,
-        'file_type': 'video/mp4',
-        'access_token': FACEBOOK_ACCESS_TOKEN
-    }
-    
-    response = requests.post(upload_url, params=params)
-    
-    if response.status_code == 200:
-        result = response.json()
-        upload_session_id = result['id']
-        print(f"Upload session created: {upload_session_id}")
-        return upload_session_id
-    else:
-        print(f"Error creating upload session: {response.text}")
-        return None
-
-def upload_video_file(upload_session_id, video_url):
-    """Upload video file using Resumable Upload API"""
-    # Step 2: Upload the file
-    upload_url = f"https://graph.facebook.com/v23.0/{upload_session_id}"
+def upload_story_video(video_id, video_url):
+    """Step 2: Upload the video for stories using hosted file method"""
+    upload_url = f"https://rupload.facebook.com/video-upload/v23.0/{video_id}"
     
     headers = {
         'Authorization': f'OAuth {FACEBOOK_ACCESS_TOKEN}',
-        'file_offset': '0'
+        'file_url': video_url
     }
     
-    # Download the video content from the URL
-    try:
-        video_response = requests.get(video_url)
-        if video_response.status_code == 200:
-            response = requests.post(upload_url, headers=headers, data=video_response.content)
-            
-            if response.status_code == 200:
-                result = response.json()
-                file_handle = result.get('h')
-                print(f"Video uploaded, handle: {file_handle}")
-                return file_handle
-            else:
-                print(f"Upload error: {response.text}")
-                return None
-        else:
-            print(f"Failed to download video from URL: {video_response.status_code}")
-            return None
-    except Exception as e:
-        print(f"Error uploading video: {e}")
-        return None
+    response = requests.post(upload_url, headers=headers)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print("Story video upload successful")
+        return True
+    else:
+        print(f"Story upload error: {response.text}")
+        return False
 
-def check_video_status(video_id):
-    """Check video processing status"""
+def get_story_upload_status(video_id):
+    """Get the upload status of the story"""
     url = f"https://graph.facebook.com/v23.0/{video_id}"
     params = {
         'fields': 'status',
@@ -184,15 +228,16 @@ def check_video_status(video_id):
     if response.status_code == 200:
         status_data = response.json().get('status', {})
         video_status = status_data.get('video_status', '')
-        processing_status = status_data.get('processing_phase', {}).get('status', '')
-        print(f"Status: {video_status}, Processing: {processing_status}")
-        return video_status, processing_status
+        uploading_phase = status_data.get('uploading_phase', {}).get('status', '')
+        processing_phase = status_data.get('processing_phase', {}).get('status', '')
+        print(f"Story Status: {video_status}, Upload: {uploading_phase}, Processing: {processing_phase}")
+        return video_status, uploading_phase, processing_phase
     else:
-        print(f"Error checking status: {response.text}")
-        return None, None
+        print(f"Error checking story status: {response.text}")
+        return None, None, None
 
 def publish_story(video_id):
-    """Publish the story"""
+    """Step 3: Publish the story"""
     url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/video_stories"
     
     payload = {
@@ -212,28 +257,6 @@ def publish_story(video_id):
         print(f"Error publishing story: {response.text}")
         return None
 
-def publish_video(file_handle, description):
-    """Publish the video using the file handle"""
-    url = f"https://graph.facebook.com/v23.0/{FACEBOOK_PAGE_ID}/videos"
-    
-    payload = {
-        'access_token': FACEBOOK_ACCESS_TOKEN,
-        'title': 'Weekly Rotation - Top New Releases',
-        'description': description,
-        'fbuploader_video_file_chunk': file_handle
-    }
-    
-    response = requests.post(url, data=payload)
-    
-    if response.status_code == 200:
-        result = response.json()
-        video_id = result.get('id')
-        print(f"Video published: {video_id}")
-        return video_id
-    else:
-        print(f"Error publishing video: {response.text}")
-        return None
-
 def post_individual_stories(songs):
     """Post individual videos as stories"""
     successful_stories = 0
@@ -245,22 +268,22 @@ def post_individual_stories(songs):
             
         print(f"Posting story {i+1}/{len(songs)}: {song['song_name']}", flush=True)
         
-        # Create story session
-        video_id = create_story_session(video_url)
+        # Step 1: Initialize story upload session
+        video_id, upload_url = initialize_story_upload_session()
         if not video_id:
             continue
         
-        # Upload video
-        if not upload_video_file(video_id, video_url):
+        # Step 2: Upload story video
+        if not upload_story_video(video_id, video_url):
             continue
         
         # Wait for processing (2 minutes max for stories)
         processing_complete = False
         for attempt in range(4):  # 2 minutes total
             time.sleep(30)
-            video_status, processing_status = check_video_status(video_id)
+            video_status, uploading_phase, processing_phase = get_story_upload_status(video_id)
             
-            if video_status == 'ready' or processing_status == 'complete':
+            if video_status == 'ready' or (uploading_phase == 'complete' and processing_phase == 'complete'):
                 processing_complete = True
                 break
             elif video_status == 'error':
@@ -273,6 +296,7 @@ def post_individual_stories(songs):
         else:
             print(f"Processing still pending for {song['song_name']}, attempting to publish anyway...")
             
+        # Step 3: Publish story
         post_id = publish_story(video_id)
         if post_id:
             successful_stories += 1
@@ -302,8 +326,8 @@ def main():
     
     print(f"Processing {len(songs)} songs...", flush=True)
     
-    # Post stitched video first
-    print("\n--- Posting Stitched Video ---", flush=True)
+    # Post stitched reel first
+    print("\n--- Posting Stitched Reel ---", flush=True)
     
     # Get stitched video URL
     video_url = get_stitched_video_url()
@@ -313,31 +337,48 @@ def main():
     description = create_description(songs)
     print(f"Description: {description[:100]}...", flush=True)
     
-    # Create upload session
-    upload_session_id = create_video_upload_session(video_url, description)
-    if not upload_session_id:
-        print("❌ Failed to create upload session")
+    # Step 1: Initialize reel upload session
+    video_id, upload_url = initialize_reel_upload_session()
+    if not video_id:
+        print("❌ Failed to create reel upload session")
         return
     
-    # Upload video file
-    file_handle = upload_video_file(upload_session_id, video_url)
-    if not file_handle:
-        print("❌ Failed to upload video file")
+    # Step 2: Upload reel video
+    if not upload_reel_video(video_id, video_url):
+        print("❌ Failed to upload reel video")
         return
     
-    # Publish video
-    video_id = publish_video(file_handle, description)
-    if video_id:
-        print(f"✅ Successfully posted Facebook video: {video_id}")
+    # Wait for processing (5 minutes max)
+    processing_complete = False
+    for attempt in range(10):  # 5 minutes total
+        time.sleep(30)
+        video_status, uploading_phase, processing_phase = get_reel_upload_status(video_id)
+        
+        if video_status == 'ready' or (uploading_phase == 'complete' and processing_phase == 'complete'):
+            processing_complete = True
+            print("Reel processing complete")
+            break
+        elif video_status == 'error':
+            print("Reel processing failed")
+            return
+    
+    # Try to publish regardless of processing status after 5 minutes
+    if not processing_complete:
+        print("Processing still pending after 5 minutes, attempting to publish anyway...")
+    
+    # Step 3: Publish reel
+    result = publish_reel(video_id, description)
+    if result:
+        print(f"✅ Successfully posted Facebook reel")
     else:
-        print("❌ Failed to post video")
+        print("❌ Failed to post reel")
     
     # Post individual stories after reel
     print("\n--- Posting Individual Stories ---")
     stories_posted = post_individual_stories(songs)
     print(f"Posted {stories_posted}/{len(songs)} individual stories")
     
-    print(f"\n🎉 Summary: {stories_posted} stories + 1 video posted")
+    print(f"\n🎉 Summary: {stories_posted} stories + 1 reel posted")
 
 if __name__ == "__main__":
     main()
