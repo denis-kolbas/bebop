@@ -35,8 +35,8 @@ def fix_encoding(text):
     except (UnicodeError, UnicodeDecodeError):
         return text
 
-def get_sheet_songs_with_create_video():
-    """Get songs from spreadsheet that have create_video = TRUE"""
+def get_sheet_excluded_songs():
+    """Get songs from spreadsheet that should be excluded: create_video = TRUE or appear 2+ times"""
     try:
         credentials = service_account.Credentials.from_service_account_file(
             'gcp_credentials.json',
@@ -63,15 +63,33 @@ def get_sheet_songs_with_create_video():
             print("Warning: song_url or create_video column not found in spreadsheet")
             return set()
         
-        # Get song URLs where create_video = TRUE
-        selected_song_urls = set()
-        for row in data:
-            if (len(row) > max(song_url_col, create_video_col) and 
-                row[create_video_col].upper() == 'TRUE'):
-                selected_song_urls.add(row[song_url_col])
+        excluded_song_urls = set()
+        song_url_counts = {}
         
-        print(f"Found {len(selected_song_urls)} songs with create_video=TRUE in spreadsheet")
-        return selected_song_urls
+        # First pass: count song URL occurrences and get create_video=TRUE songs
+        for row in data:
+            if len(row) > max(song_url_col, create_video_col):
+                song_url = row[song_url_col]
+                if song_url:  # Skip empty URLs
+                    # Count occurrences
+                    song_url_counts[song_url] = song_url_counts.get(song_url, 0) + 1
+                    
+                    # Check create_video flag
+                    if row[create_video_col].upper() == 'TRUE':
+                        excluded_song_urls.add(song_url)
+        
+        # Second pass: add songs that appear 2+ times
+        duplicate_songs = set()
+        for song_url, count in song_url_counts.items():
+            if count >= 2:
+                duplicate_songs.add(song_url)
+                excluded_song_urls.add(song_url)
+        
+        create_video_count = len([url for url in excluded_song_urls if url not in duplicate_songs])
+        duplicate_count = len(duplicate_songs)
+        
+        print(f"Found {len(excluded_song_urls)} songs to exclude: {create_video_count} with create_video=TRUE, {duplicate_count} appearing 2+ times")
+        return excluded_song_urls
         
     except Exception as e:
         print(f"Error fetching songs from spreadsheet: {e}")
@@ -126,8 +144,8 @@ def get_selected_songs(bucket_name):
    return selected_songs
 
 def select_new_songs(tracks, bucket_name, num_songs=20):
-   # Get songs from spreadsheet that have create_video = TRUE
-   sheet_selected_urls = get_sheet_songs_with_create_video()
+   # Get songs from spreadsheet that should be excluded
+   sheet_selected_urls = get_sheet_excluded_songs()
    
    # Get previously selected songs from JSON
    selected_songs = get_selected_songs(bucket_name)
