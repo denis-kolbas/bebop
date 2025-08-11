@@ -104,14 +104,26 @@ def get_song_views(song_name, artist_name):
       search_query = f"{song_name} {artist_name} official"
       results = ytmusic.search(search_query, filter='videos', limit=1)
       if results and len(results) > 0:
-          # Try different field names that might contain view count
+          video_data = results[0]
+          # Get view count
+          view_count = '0'
           for field in ['videoCountText', 'viewCount', 'views']:
-              if field in results[0]:
-                  return results[0][field]
-      return '0'
+              if field in video_data:
+                  view_count = video_data[field]
+                  break
+          
+          # Get video ID for commenting
+          video_id = video_data.get('videoId', '')
+          
+          # Return both view count and video ID
+          return {
+              'views': view_count,
+              'youtube_video_id': video_id
+          }
+      return {'views': '0', 'youtube_video_id': ''}
   except Exception as e:
       print(f"YouTube search error: {e}")
-      return '0'
+      return {'views': '0', 'youtube_video_id': ''}
 
 def generate_video_url(song, index, bucket_name, date):
     """Generate deterministic video URL matching video creator naming pattern"""
@@ -306,6 +318,9 @@ def scrape_apple_music():
                   song_name = song_data.get('name', '')
                   artist_name = audio_data.get('byArtist', [{}])[0].get('name', '')
                   
+                  # Get YouTube data (views and video ID)
+                  youtube_data = get_song_views(song_name, artist_name)
+                  
                   track_info = {
                       'song_name': fix_encoding(song_name),
                       'album': fix_encoding(audio_data.get('inAlbum', {}).get('name', '')),
@@ -315,7 +330,8 @@ def scrape_apple_music():
                       'song_url': song_url,
                       'artwork_url': artwork_url,
                       'artwork_bg_color': colors.get('artwork_bg_color'),
-                      'views': get_song_views(song_name, artist_name),
+                      'views': youtube_data['views'],
+                      'youtube_video_id': youtube_data['youtube_video_id'],
                       'scrape_date': scrape_date
                   }
                   tracks.append(track_info)

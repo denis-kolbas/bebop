@@ -179,3 +179,22 @@ jobs:
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
           PYTHONUNBUFFERED: 1
+
+  post-youtube-comments:
+    runs-on: ubuntu-latest
+    needs: stitch-videos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt
+      - run: python poster_youtube_comments.py
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          YOUTUBE_REFRESH_TOKEN_WR: ${{ secrets.YOUTUBE_REFRESH_TOKEN_WR }}
+          YOUTUBE_CLIENT_ID_WR: ${{ secrets.YOUTUBE_CLIENT_ID_WR }}
+          YOUTUBE_CLIENT_SECRET_WR: ${{ secrets.YOUTUBE_CLIENT_SECRET_WR }}
+          YOUTUBE_COMMENT_TEMPLATE: "{artist_name} deserved a spot in the Weekly Rotation with this one ❤️"
+          PYTHONUNBUFFERED: 1
