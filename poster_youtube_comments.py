@@ -41,7 +41,13 @@ def authenticate_youtube():
         )
         
         # Refresh the token
-        creds.refresh(Request())
+        try:
+            creds.refresh(Request())
+        except Exception as refresh_error:
+            print(f"❌ Token refresh failed: {refresh_error}")
+            print("💡 Your refresh token may have expired or been revoked.")
+            print("🔧 Please regenerate tokens using: python generate_youtube_token.py")
+            raise ValueError("Token refresh failed - please regenerate refresh token")
         
         # Build YouTube service
         youtube = build('youtube', 'v3', credentials=creds)
